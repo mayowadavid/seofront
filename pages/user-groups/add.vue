@@ -161,7 +161,7 @@
                     class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
                     required
                   >
-                    <option v-for="project in projects" :key="project.id" :value="project.id">{{project.name}}</option>
+                    <option v-for="project in projects" :key="project.id" :value="project.id">{{project?.name}}</option>
                   </select>
                 </div>
               </div>
@@ -439,6 +439,7 @@
   const { data: data } = await useFetch(
     `${config.API_BASE_URL}projects/all?AccountId=${activeAccount.value}`
   )
+  
   projects.value = data.value
   form.ProjectId = activeProject.value
 }
