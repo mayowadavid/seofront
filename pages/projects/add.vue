@@ -28,50 +28,6 @@
 
         <div class="overflow-hidden shadow sm:rounded-md">
           <div class="px-4 py-5 sm:p-6">
-            <div class="col-span-12">
-              <div class="grid grid-cols-12">
-                <div
-                  class="col-span-3 flex items-center text-sm font-medium text-gray-700"
-                >
-                  ID
-                </div>
-                <div class="col-span-3">
-                  <input
-                    type="text"
-                    v-model="form.unique_identifier"
-                    :disabled="form.unique_identifier"
-                    id="item_id"
-                    class="bg-[#dddddd] disabled:bg-gray-300 disabled:text-gray-500 h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div class="flex flex-row mt-4">
-              <div class="basis-1/2 pl-1.5">
-                <div class="col-span-12">
-                  <div class="grid grid-cols-12">
-                    <div
-                      class="col-span-3 flex items-center text-sm font-medium text-gray-700"
-                    >
-                      Created By
-                    </div>
-                    <div class="col-span-9">
-                      <input
-                        type="text"
-                        v-model="form.createdBy"
-                        :disabled="form.createdBy"
-                        id="username"
-                        class="bg-[#dddddd] disabled:bg-gray-300 disabled:text-gray-500 h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
-                        required
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
             <div class="col-span-12 mt-4">
               <div class="grid grid-cols-12">
                 <div
@@ -92,24 +48,15 @@
                 <div
                   class="col-span-6 pl-4"
                 >
-                  <div class="col-span-12">
-                    <div class="grid grid-cols-12">
-                      <div
-                        class="col-span-3 flex items-center text-sm font-medium text-gray-700"
-                      >
-                        Account
-                      </div>
                       <div class="col-span-9">
-                        <input
-                          type="text"
-                          :value="user.userName"
-                          :disabled="user.userName"
-                          id="username"
-                          class="bg-[#dddddd] disabled:bg-gray-300 disabled:text-gray-500 h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
-                          required
-                        />
-                      </div>
-                    </div>
+                    <select
+                    v-model="form.planId"
+                      id="category"
+                      class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
+                      required
+                    >
+                      <option v-for="plan in plans" :value="plan.id" :key="plan.id">{{plan?.name}}</option>
+                    </select>
                   </div>
                 </div>
               </div>
@@ -192,11 +139,11 @@ const config = useRuntimeConfig()
 const shouldShowDialog = ref(false)
 const clickdatas = ref([])
 
-// const defUser = JSON.parse(localStorage.getItem("user"));
 
 const uniqueUrl = ref("")
 const isLoading = ref(false)
 const user = ref({});
+const plans = ref([]);
 
 function isValidUrl(urlString) {
   let urlPattern = new RegExp(
@@ -215,93 +162,16 @@ function isValidUrl(urlString) {
 const form = reactive({
   name: "",
   description: "",
+  planId: ""
 })
 const store = useStore();
+plans.value = [...store.value.plan];
 user.value = {...store.value.user};
-const {createPlan} = actions;
+const {createProjects} = actions;
 
 const createProject = () => {
- createPlan(form);
+ createProjects(form);
 }
 
-//   const handleSave = async () => {
-//     let a_data = {
-//       AccountId: form.AccountId,
-//       timestamp: new Date(),
-//       name: form.name,
-//       unique_identifier: form.item_id,
-//       description: form.description,
-//       category: form.category,
-//       priority: form.priority,
-//       cat_group: form.group,
-//       visibility: form.visibility,
-//       url_1_link: form.url_1_link,
-//       url_2_txt: form.url_2_txt,
-//       url_2_link: form.url_2_link,
-//       plan_frequency: form.plan_frequency,
-//       automatic_status: form.automatic_status,
-//     }
 
-//     await useFetch(`${config.API_BASE_URL}projects/create`, {
-//       method: "POST",
-//       body: a_data,
-//     })
-//       .then((result) => {
-//         if (result.data.value) {
-//           AWN.success(result.data.value.message)
-//           uniqueUrl.value = ""
-//           navigateTo("/projects")
-//         }
-//         if (result.error.value) {
-//           console.log("error value1", result.error.value.data.message)
-//           shouldShowDialog.value = false
-//           AWN.alert(error)
-//         }
-//       })
-//       .catch((error) => {
-//         console.log("error value", error)
-//         AWN.alert("Validation error")
-//       })
-//   }
-
-const getTrackingURL = async () => {
-  const { data, error } = await useFetch(
-    `${config.API_BASE_URL}projects/gettrackingurl`
-  )
-  if (data.value) {
-    form.unique_identifier = data.value.newTrackingURl
-  }
-  if (error.value) {
-    await AWN.alert(error.value.statusMessage)
-  }
-}
-
-onBeforeMount(getTrackingURL)
-
-// onMounted(() => {
-//   document.addEventListener("keydown", (event) => {
-//     // event.keyCode or event.which  property will have the code of the pressed key
-//     let keyCode = event.keyCode ? event.keyCode : event.which;
-
-//     // 13 points the enter key, 16 points the shift key
-//     if (event.altKey && keyCode === 67) {
-//       getTrackingURL();
-
-//       form.AccountId = JSON.parse(user).AccountId;
-//       form.timestamp = new Date().toLocaleTimeString();
-//       form.description = "";
-//       form.category = "";
-//       form.name = "";
-
-//       form.group = "all";
-//       form.priority = "";
-//       form.visibility = "low";
-//       form.url_1_link = "";
-//       form.url_2_txt = "";
-//       form.url_2_link = "";
-//       form.plan_frequency = "";
-//       form.automatic_status = "";
-//     }
-//   });
-// });
 </script>

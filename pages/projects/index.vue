@@ -247,9 +247,6 @@ const searchdatas = ref([])
 const search = reactive({
   vaClDa: "",
 })
-const activeAccount = ref(
-  localStorage.getItem("activeAccount")
-)
 
 const empty = () => {
   search.vaClDa = ""
@@ -293,8 +290,6 @@ const enterSearch = () => {
   projectsTotal.value = searchdatas.value.length
 }
 
-const defUser = JSON.parse(localStorage.getItem("user"))
-const name = ref(localStorage.getItem("sometraffic_delete_project_name"))
 const form = reactive({
   id: "",
   user_id: "",
@@ -303,69 +298,29 @@ const form = reactive({
 })
 
 if (id) {
-  const { data: project } = await useFetch(
-    `${config.API_BASE_URL}projects/${id}`,
-    {
-      key: id,
-    }
-  )
-
-  form.id = project.value.id
-  form.user_id = defUser.userId
-  form.name = project.value.name
-  form.description = project.value.description
+  
 }
 
 const setProjects = async () => {
-  const { data: data } = await useFetch(
-    `${config.API_BASE_URL}projects/all?AccountId=${activeAccount.value}`
-  )
+  
   searchdatas.value = data.value
   projects.value = data.value
   projectsTotal.value = data.value?.length
 }
 
 const update = async (id) => {
-  const { data: project } = await useFetch(`${config.API_BASE_URL}projects/${id}`)
-
-  form.id = project.value.id
-  form.name = project.value.name
-  form.description = project.value.description
+  
 }
 
 const destroy = async (id, deletingName) => {
   shouldShowDialog.value = true
-  localStorage.setItem("sometraffic_delete_project", id)
-  localStorage.setItem("sometraffic_delete_project_name", deletingName)
+
   name.value = deletingName
 }
 
 const handleDelete = async () => {
   const id = localStorage.getItem("sometraffic_delete_project")
-  const { data, error } = await useFetch(
-    `${config.API_BASE_URL}projects/delete/${id}`,
-    {
-      method: "GET",
-      params: { id: id },
-    }
-  )
-
-  if (data.value) {
-    shouldShowDialog.value = false
-    await AWN.success(data.value.message)
-    const activeProject = localStorage.getItem('activeProject')
-    if(activeProject === id)
-    localStorage.removeItem('activeProject')
-    const router = useRouter()
-          router.go("/projects")
-  }
-  if (error.value) {
-    shouldShowDialog.value = false
-    await AWN.alert(error.value.statusMessage)
-  }
-
-  localStorage.removeItem("sometraffic_delete_project")
-  await setProjects()
+  
 }
 
 onBeforeMount(setProjects)

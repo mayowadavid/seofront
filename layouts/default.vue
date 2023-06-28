@@ -47,7 +47,7 @@
               </span>
             </div>
           </NuxtLink>
-          <div v-if="user.role === 'Administrator' || user.role === 'administrator'" class="flex text-white gap-x-4 items-center">
+          <div v-if="user.role === 'Administrator'" class="flex text-white gap-x-4 items-center">
               <h2 class="text-slate-300 text-md"><TimeDisplay /></h2>
                           <NuxtLink
             class="hover:bg-white/10  transition w-fit duration-150 ease-linear rounded-lg py-3 px-2 group"
@@ -77,9 +77,9 @@
                <span class="text-center self-center text-xl">{{joinedGroups}}</span>
             </div>
             <div class="flex text-white">
-              <p v-if="user.role === 'Administrator' || user.role === 'administrator'" class="font-medium text-lg text-slate-200">Account</p>
+              <p v-if="user?.role === 'Administrator'" class="font-medium text-lg text-slate-200">Account</p>
             </div>
-            <div v-if="user.role === 'Administrator' || user.role === 'administrator'" class="flex mt-4">
+            <div v-if="user?.role === 'Administrator'" class="flex mt-4">
                   <div class="basis-full  ">
                     <div id="account-selector" class="relative">
               <div @click="showAccountsList = !showAccountsList" class="rounded-md cursor-pointer relative flex bg-[#bcbcbc] p-3  text-black">
@@ -101,10 +101,10 @@
             </div>
             </div>
                 </div>
-                <div v-if="user.role === 'Administrator'" class="flex my-4 text-white">
+                <div v-if="user?.role === 'Administrator'" class="flex my-4 text-white">
                   <p class="font-medium text-lg text-slate-200">Project</p>
                 </div>
-                <div v-if="user.role === 'Administrator' || user.role === 'administrator'" id="project-selector" class="relative mb-8">
+                <div v-if="user?.role === 'Administrator' || user.role === 'administrator'" id="project-selector" class="relative mb-8">
             <div @click="projects.length > 0 ? showProjectsList = !showProjectsList : navigateTo('/projects/add')" class="rounded-md cursor-pointer relative flex bg-[#bcbcbc] p-3 text-black">
               <button class="font-medium">{{projects.length > 0 ? projects[selectedProjectIndex].name : 'Create first project'}}</button>
               <span v-if="projects.length" :class="{'rotate-180':showProjectsList}" class="absolute right-3 top-1/2 -translate-y-1"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" width="24px" height="14px" viewBox="0 0 960 560" enable-background="new 0 0 960 560" xml:space="preserve">
@@ -355,7 +355,7 @@ const shouldShowDialog = ref(false);
 const showAccountsList = ref(false);
 const showProjectsList = ref(false);
 const joinedGroups = ref(0)
-let user = reactive({
+let user = ref({
   userName: "",
   role: "",
   currentTime: "",
@@ -364,8 +364,8 @@ let selectedAccountIndex = ref(0);
 let selectedProjectIndex = ref(0);
 const db_name = moment(new Date()).format("YYYY-MM-DD-HH_mm");
 const full_db_name = `sometraffic-${db_name}`;
-let accounts = reactive([])
-let projects = reactive([]);
+let accounts = ref([])
+let projects = ref([]);
 const store = useStore();
 const data = actions;
 const {
@@ -396,12 +396,26 @@ Promise.all([
             ]);
     showProjectsList.value = !showProjectsList.value;
 }
+watch(()=> store?.value?.user, (newData)=>{
+  console.log('user', newData)
+  user.value = {...user.value, ...newData};
+})
+
+watch(()=> store?.value?.accounts, (newData)=>{
+  accounts.value = [...newData]
+})
+
+watch(()=> store?.value?.projects, (newData)=>{
+  console.log('newData', newData);
+  projects.value = [...newData];
+  projects?.length > 0 && (showProjectsList.value = true);
+})
 
 onBeforeMount(() => {
-  const data = useStore();
-  user = {...user, ...data?.value?.user};
-  accounts = [...data?.value?.plan];
-  projects = [...data?.value?.projects];
+  user.value = {...user.value, ...store?.value?.user};
+  accounts.value = [...store?.value?.plan];
+  projects.value = [...store?.value?.projects];
+  console.log(store.value.projects);
   //projects.value?.length > 0 && (showProjectsList.value = true);
   //console.log('data', [...projects]);
   // document.addEventListener("click", function(evt) {
@@ -441,37 +455,37 @@ onBeforeMount(() => {
 }
   );
 
-// const time = () => {
-//     const today = new Date();
-//     // const date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
-//     const time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-//     // const dateTime = date + ' ' + time;
-//     user.currentTime = time;
-// }
+const time = () => {
+    const today = new Date();
+    // const date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+    const time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+    // const dateTime = date + ' ' + time;
+    user.currentTime = time;
+}
 
-// const downloadDb = () => {
-//   // const link = document.createElement("a");
-//   // link.href = `${config.API_BASE_URL}files/sometraffic.sql`;
-//   // link.download = full_db_name;
-//   // link.target = "_blank";
-//   // link.click();
-// };
+const downloadDb = () => {
+  // const link = document.createElement("a");
+  // link.href = `${config.API_BASE_URL}files/sometraffic.sql`;
+  // link.download = full_db_name;
+  // link.target = "_blank";
+  // link.click();
+};
 
-// const logout = async () => {
-//   // let x = confirm('Are you sure!')
-//   // if(x){
-//   //     localStorage.clear();
-//   //     navigateTo('/login');
-//   // }
+const logout = async () => {
+  let x = confirm('Are you sure!')
+  if(x){
+      localStorage.clear();
+      navigateTo('/login');
+  }
 
-//   // localStorage.clear();
-//   // navigateTo("/");
-//   // await AWN.success("You Logout From System!");
-// };
+  localStorage.clear();
+  navigateTo("/");
+  await AWN.success("You Logout From System!");
+};
 
-// const handleLogout = async () => {
-//   //shouldShowDialog.value = true;
-// };
+const handleLogout = async () => {
+  shouldShowDialog.value = true;
+};
 </script>
 
 <style scoped>

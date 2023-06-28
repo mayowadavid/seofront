@@ -33,61 +33,61 @@ const db_name = moment(new Date()).format("YYYY-MM-DD-HH_mm");
 const full_db_name = `sometraffic-${db_name}`;
 const AWN = inject("$awn");
 const accounts = ref([])
-const activeAccount = ref(localStorage.getItem('activeAccount'))
+const activeAccount = ref()
 const showAccountsList = ref(false);
 
 const setAccount = (id) => {
-  showAccountsList.value = false;
-  const activeAccount = accounts.value.find(account => account.id === parseInt(id)) 
-  localStorage.removeItem('activeProject')
-  localStorage.setItem('activeAccount', activeAccount.id)
-  localStorage.setItem('activeAccountData', JSON.stringify(activeAccount))
-  const router = useRouter()
-  router.go()
+  // showAccountsList.value = false;
+  // const activeAccount = accounts.value.find(account => account.id === parseInt(id)) 
+  // localStorage.removeItem('activeProject')
+  // localStorage.setItem('activeAccount', activeAccount.id)
+  // localStorage.setItem('activeAccountData', JSON.stringify(activeAccount))
+  // const router = useRouter()
+  // router.go()
 }
 
 const setAccounts = async () => {
-  const { data: data } = await useFetch(`${config.API_BASE_URL}accounts/all`)
-  accounts.value = data.value
+  // const { data: data } = await useFetch(`${config.API_BASE_URL}accounts/all`)
+  // accounts.value = data.value
 }
 
 
 
 const downloadDb = () => {
-  const link = document.createElement("a");
-  link.href = `${config.API_BASE_URL}files/sometraffic.sql`;
-  link.download = full_db_name;
-  link.target = "_blank";
-  link.click();
+  // const link = document.createElement("a");
+  // link.href = `${config.API_BASE_URL}files/sometraffic.sql`;
+  // link.download = full_db_name;
+  // link.target = "_blank";
+  // link.click();
 };
 
 const setActiveAccount = (e) => {
-    const id = e.target.value
-    const accountName = e.target.selectedOptions[0].innerText
-    const activeAccount = accounts.value.find(account => account.id === parseInt(id)) 
-    localStorage.removeItem('activeProject')
-    localStorage.setItem('activeAccount', activeAccount.id)
-    localStorage.setItem('activeAccountData', JSON.stringify(activeAccount))
-    AWN.success(`Active account changed to ${accountName}`);
-    const router = useRouter()
-    router.go()
+    // const id = e.target.value
+    // const accountName = e.target.selectedOptions[0].innerText
+    // const activeAccount = accounts.value.find(account => account.id === parseInt(id)) 
+    // localStorage.removeItem('activeProject')
+    // localStorage.setItem('activeAccount', activeAccount.id)
+    // localStorage.setItem('activeAccountData', JSON.stringify(activeAccount))
+    // AWN.success(`Active account changed to ${accountName}`);
+    // const router = useRouter()
+    // router.go()
 }
 onBeforeMount(setAccounts)
 onMounted(() => {
-  document.addEventListener("click", function(evt) {
-        let accountEl = document.getElementById('account-selector'),
-          targetEl = evt.target; // clicked element      
-        do {
-          if(targetEl == accountEl) {
-            // This is a click inside, does nothing, just return.
-            return;
-          }
-          // Go up the DOM
-          targetEl = targetEl.parentNode;
-        } while (targetEl);
-        // This is a click outside.
-        showAccountsList.value = false
-      });
+  // document.addEventListener("click", function(evt) {
+  //       let accountEl = document.getElementById('account-selector'),
+  //         targetEl = evt.target; // clicked element      
+  //       do {
+  //         if(targetEl == accountEl) {
+  //           // This is a click inside, does nothing, just return.
+  //           return;
+  //         }
+  //         // Go up the DOM
+  //         targetEl = targetEl.parentNode;
+  //       } while (targetEl);
+  //       // This is a click outside.
+  //       showAccountsList.value = false
+  //     });
 }
   );
 

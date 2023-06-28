@@ -180,6 +180,16 @@ export const actions  = {
             AwnNotify('failed to create', 'alert');
         }
     },
+    async createProjects(form: {}){
+        try{
+            const res = await Axios('post', `projects/create`, form);
+            AwnNotify('Plan created', 'success');
+            navigateTo("/projects");
+            return res?.data;
+        }catch(e){
+            AwnNotify('failed to create', 'alert');
+        }
+    },
     async fetchSinglePlan(id: string){
         try{
             const res = await Axios('get', `plan/${id}`);
@@ -212,6 +222,7 @@ export const actions  = {
     async fetchPlan(){
         const res = await Axios('get', 'plan');
         res?.data && SET_PLAN(res?.data);
+       console.log('plan', res?.data);
         const id = res?.data?.length > 0 && res?.data[0]?.id || '';
         id && actions.fetchProject(id);
     },
@@ -220,7 +231,8 @@ export const actions  = {
         try{
             const planId =  id;
             const res = await Axios('get', `projects/${planId}`);
-            SET_PROJECT(res?.data)
+            SET_PROJECT(res?.data);
+            console.log(res?.data);
             const projectId = res?.data[0]?.id;
             SET_PROJECT_ID(res?.data[0]?.id)
             Promise.all([
