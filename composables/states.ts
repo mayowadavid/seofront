@@ -1,4 +1,4 @@
-import utils from '~/utils/function';
+import utils from '~~/utils/helper';
 
 const { Axios, AwnNotify } = utils;
 export const useStore = () => useState('auth', () => ({
