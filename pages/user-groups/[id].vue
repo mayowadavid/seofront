@@ -25,8 +25,8 @@
                   <div class="col-span-5 pr-4">
                     <input
                       type="text"
-                      v-model="form.unique_identifier"
-                      :disabled="form.unique_identifier"
+                      v-model="form.id"
+                      :disabled="form.id"
                       id="unique_identifier"
                       class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
                       required
@@ -63,8 +63,8 @@
                       <div class="col-span-9">
                         <input
                           type="text"
-                          v-model="form.timestamp"
-                          :disabled="form.timestamp"
+                          v-model="form.createdAt"
+                          :disabled="form.createdAt"
                           id="timestamp"
                           class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
                           required
@@ -84,8 +84,8 @@
                       <div class="col-span-9">
                         <input
                           type="text"
-                          v-model="form.createdBy"
-                          :disabled="form.createdBy"
+                          v-model="form.user.userName"
+                          :disabled="form.user.userName"
                           id="username"
                           class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
                           required
@@ -236,109 +236,41 @@
   const config = useRuntimeConfig()
   const { id } = await useRoute().params
   
-  let timestamp = ref(new Date().toLocaleTimeString())
-  let user = localStorage.getItem("user")
-  const activeAccount = ref(
-  localStorage.getItem("activeAccount")
-)
+
 
   const clickdatas = ref([])
-  const uniqueUrl = ref("")
   const isLoading = ref(false)
   const projects = ref([])
 
-  setInterval(() => {
-    timestamp.value = new Date().toLocaleTimeString()
-  }, 10)
-  
-  const form = reactive({
-    createdBy: "",
+  const form = ref({
+    user: {
+      "userName": "",
+    },
     createdAt: "",
-    timestamp,
-    unique_identifier: "",
     description: "",
     name: "",
     ProjectId: "",
     id: ""
   })
   
-  
-  const { data: group } = await useFetch(
-    `${config.API_BASE_URL}groups/identifier/${id}`,
-    { key: id }
-  )
-  
-  if (group.value) {
-    form.id = group.value.id
-    form.ProjectId = group.value.ProjectId
-    form.name = group.value.name
-    form.createdBy = group.value.createdBy;
-    form.unique_identifier = group.value.unique_identifier
-    form.description = group.value.description
-    form.createdAt = group.value.createdAt
-  }
-  
-  const formatDate = (dateString, formatString) => {
-    const date = new Date(dateString)
-    return moment(date).format(formatString)
-  }
-  
-  const updateGroup = async () => {
-    const u_data = {
-      id: form.id,
-      ProjectId: form.ProjectId,
-      name: form.name,
-      createdBy: form.createdBy,
-      unique_identifier: form.unique_identifier,
-      description: form.description,
-    }
-  
-    const { data, error } = await useFetch(
-      `${config.API_BASE_URL}groups/update/${id}`,
-      {
-        method: "PUT",
-        body: u_data,
-      }
-    )
-    if (data.value) {
-      await AWN.success(data.value.message)
-      navigateTo("/user-groups").then(()=>{
-          const router = useRouter()
-          router.go("/user-groups")
-      })
-    }
-    if (error.value) {
-      await AWN.alert(error.value.statusMessage)
-    }
-  }
-  
-  
-  const setLoading = () => {
-    isLoading.value = true
-  }
-  
-  const copy = async (id) => {
-    // Get the text field
-    var copyText = document.getElementById(id)
-  
-    // Select the text field
-    copyText.select()
-    copyText.setSelectionRange(0, 99999) // For mobile devices
-  
-    // Copy the text inside the text field
-    navigator.clipboard.writeText(copyText.value)
-    await AWN.success(copyText.value + " copied to clipboard!")
-    // Alert the copied text
-    //alert("Copied the text: " + copyText.value);
-  }
-  
-  const setProjects = async () => {
-  const { data: data } = await useFetch(
-    `${config.API_BASE_URL}projects/all?AccountId=${activeAccount.value}`
-  )
-  projects.value = data.value
+const store = useStore();
+projects.value = [...store.value.projects];
+
+watch(()=>store.value?.singleGroup, (newData)=>{
+  form.value = {...form.value, ...newData};
+});
+
+const {fetchGroups, updateGroups} = actions;
+
+const formatDate = (dateString, formatString) => {
+  const date = new Date(dateString)
+  return moment(date).format(formatString)
 }
-  onBeforeMount(setProjects)
+
+const updateGroup = () => {
+  updateGroups(id, form.value);
+}
+onBeforeMount(()=>fetchGroups(id));
 
   </script>
   

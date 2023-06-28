@@ -94,7 +94,7 @@
           <tr
             class="border-b border-gray-700"
             v-for="clickdata in searchdatas"
-            key="clickdata.id"
+            :key="clickdata.id"
           >
             <td class="py-3 px-2">
               <NuxtLink
@@ -209,7 +209,7 @@ const config = useRuntimeConfig();
 const props = defineProps({
   showSearch: Boolean,
   limit: Number,
-  itemid: Number,
+   task: Array,
 });
 
 const AWN = inject("$awn");
@@ -231,12 +231,12 @@ const empty = () => {
 const searched = () => {
   searchdatas.value = clickdatas?._value?.filter((row) => {
     return (
-      row.username
+      row.user.userName
         .toLowerCase()
         ?.includes(search.vaClDa?.toString()?.toLowerCase()) ||
-      row?.task_id?.includes(search.vaClDa) ||
-      row?.Category_Item.unique_identifier?.includes(search.vaClDa) ||
-      row?.timestamp
+      row?.id?.includes(search.vaClDa) ||
+      row?.categoryItemId?.includes(search.vaClDa) ||
+      row?.createdAt
         ?.toLowerCase()
         .includes(search.vaClDa?.toString()?.toLowerCase()) ||
       row?.information
@@ -267,12 +267,12 @@ const searched = () => {
 const enterSearch = () => {
   searchdatas.value = clickdatas?._value?.filter((row) => {
     return (
-      row.username
+      row.user.userName
         .toLowerCase()
         ?.includes(search.vaClDa?.toString()?.toLowerCase()) ||
-      row?.task_id?.includes(search.vaClDa) ||
-      row?.Category_Item.unique_identifier?.includes(search.vaClDa) ||
-      row?.timestamp
+      row?.id?.includes(search.vaClDa) ||
+      row?.categoryItemId?.includes(search.vaClDa) ||
+      row?.createdAt
         ?.toLowerCase()
         .includes(search.vaClDa?.toString()?.toLowerCase()) ||
       row?.information
@@ -339,71 +339,15 @@ const nicePriority = (n) => {
 //     searched();
 //   }
 // };
-const setClickDatas = async () => {
-  const { limit, itemid } = toRefs(props);
-  let query = "";
-  if (limit.value) {
-    query = `limit=${limit.value}`;
-  }
-  if (itemid.value) {
-    query += `&itemid=${itemid.value}`;
-  }
-
-  if (!localStorage.getItem('activeProject')) {
-    let timer = 0
-    const waitForActiveProject = setInterval(async () => {
-      if (localStorage.getItem('activeProject')) {
-        clearInterval(waitForActiveProject)
-        const { data: data } = await useFetch(
-          `${config.API_BASE_URL}tasks/allWithItemId?${query}&projectId=${localStorage.getItem('activeProject')}&status=history`
-        );
-
-        clickdatas.value = data.value.data;
-        searchdatas.value = data.value.data;
-        clickdatasTotal.value = data.value.count;
-
-      } else {
-        timer += 1
-        if (timer / 10 > 5) {
-          clearInterval(waitForActiveProject)
-        }
-      }
-    }, 100)
-  } else {
-    const { data: data } = await useFetch(
-      `${config.API_BASE_URL}tasks/allWithItemId?${query}&projectId=${localStorage.getItem('activeProject')}&status=history`
-    );
-
-    clickdatas.value = data.value.data;
-    searchdatas.value = data.value.data;
-    clickdatasTotal.value = data.value.count;
-  }
-  if (id) {
-    searched();
-  }
+const setClickDatas = () => {
+   clickdatas.value = props.task.length > 0 ? [...props.task]: [];
+   searchdatas.value =props.task.length > 0 ? [...props.task]: [];
 };
 
 
 const handleDelete = async () => {
   const id = localStorage.getItem("sometraffic_delete_task");
-  const { data, error } = await useFetch(
-    `${config.API_BASE_URL}tasks/delete/${id}`,
-    {
-      method: "GET",
-      params: { id: id },
-    }
-  );
-  if (data.value) {
-    shouldShowDialog.value = false;
-    await AWN.success(data.value.message);
-  }
-  if (error.value) {
-    shouldShowDialog.value = false;
-    await AWN.alert(error.value.statusMessage);
-  }
-
-  localStorage.removeItem("sometraffic_delete_task");
-  await setClickDatas();
+  deleteTasks(id);
 };
 
 const destroy = async (id) => {

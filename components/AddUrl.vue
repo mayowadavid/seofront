@@ -193,7 +193,7 @@
               <div class="basis-1/4">
                 <input
                   type="text"
-                  v-model="form.task_id"
+                  v-model="form.taskId"
                   id="task_id"
                   class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
                   required
@@ -248,7 +248,7 @@
                       />
                     </div>
                     <div class="cal-span-1 flex px-2 text-zinc-900 font-bold text-xl items-center">
-                      {{form.titleCount}}
+                      {{titleCount}}
                     </div>
                   </div>
                 </div>
@@ -270,7 +270,7 @@
                       ></textarea>
                     </div>
                     <div class="cal-span-1 flex px-2 text-zinc-900 font-bold text-xl items-center">
-                      {{form.descriptionCount}}
+                      {{descriptionCount}}
                     </div>
                   </div>
                 </div>
@@ -380,12 +380,10 @@ export default {
 
 <script setup>
 const props = defineProps({
-  taskId: { type: String, default: '' },
    trackUrlData: { type: Object, required: true } 
 });
 const taskId = ref('');
 const trackUrlDetails = ref([]);
-taskId.value = props.taskId;
 definePageMeta({
   middleware: ["auth"],
 });
@@ -394,67 +392,41 @@ const config = useRuntimeConfig();
 const urlParams = new URLSearchParams(window.location.search);
 const inValidFile = ref("");
 const facebook_link = ref("");
+const {id} = await useRoute().query;
 
 const path = window.location.href;
 const fullpath = path.split("/").slice(0, 3).join("/");
 
-let form = reactive({
+let form = ref({
   tracking_url: "",
   destination_url: "",
-  task_id: urlParams.get("task_id"),
+  taskId: null,
   seo_title: "",
   seo_description: "",
   seo_image_url: "",
   facebook_link: "no",
-  titleCount: 0,
-  descriptionCount: 0,
 });
 
-onMounted(()=>{
-    taskId && (form.task_id = taskId);
+let titleCount = reactive(0);
+let descriptionCount = reactive(0);
+
+const store = useStore();
+form.value = {...form.value, taskId: store.value?.singleTask?.id};
+
+watch(()=> store.value.singleTask, (newValue) => {
+  form.value = {...form.value, taskId: newValue.id};
 });
+const { createTrackUrl } = actions;
 
-watch(()=> props.trackUrlData, (newValue) => {
-  form = {...form, ...newValue, task_id: form.task_id, tracking_url: form.tracking_url};
-});
-
-const createTrackingURL = async () => {
-  const a_data = {
-    tracking_url: form.tracking_url,
-    destination_url: form.destination_url,
-    task_id: form.task_id,
-    seo_title: form.seo_title,
-    seo_description: form.seo_description,
-    seo_image_url: form.seo_image_url,
-  };
-  //console.log("Payload: ", a_data);
-
-  await useFetch(`${config.API_BASE_URL}trackingurl/create`, {
-    method: "POST",
-    body: a_data,
-  })
-    .then((result) => {
-      if (result.data.value) {
-        AWN.success(result.data.value.message);
-        navigateTo("/tracking-url");
-      }
-      if (result.error.value) {
-        //console.log("error value1", result.error.value.data.message);
-        AWN.alert(result.error.value);
-      }
-    })
-    .catch((error) => {
-      //console.log("error value", error);
-      AWN.alert("Validation error");
-    });
+const createTrackingURL = () => {
+  createTrackUrl(form.value);
 };
 
 const handleChange = (e) => {
-  //e.preventDefault();
   let {name, value} = e.target;
   value = value.trim().length;
-  name == 'title' && (form.titleCount = value);
-  name == 'description' && (form.descriptionCount = value);
+  name == 'title' && (titleCount = value);
+  name == 'description' && (descriptionCount = value);
 }
 
 const handleFile = async (e) => {
@@ -505,19 +477,29 @@ const handleFbLink = (e) => {
 };
 
 const getTrackingURL = async () => {
-  const { data, error } = await useFetch(
-    `${config.API_BASE_URL}trackingurl/gettrackingurl`
-  );
+  console.log(id);
+  const characters = `abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789${id}`;
+  let uniqueId = '';
 
-  if (data.value) {
-    form.tracking_url = fullpath + "/" + data.value.newTrackingURl;
+  while (uniqueId.length < 10) {
+    const randomIndex = Math.floor(Math.random() * characters.length);
+    const randomChar = characters[randomIndex];
+
+    if (!uniqueId.includes(randomChar)) {
+      uniqueId += randomChar;
+    }
   }
-  if (error.value) {
-    await AWN.alert(error.value.statusMessage);
-  }
+
+  const res = `${config.BASE_URL}/${uniqueId}`;
+  console.log('search', res);
+  return form.value = {...form.value, tracking_url: res};
+
+
 };
 
-onBeforeMount(getTrackingURL);
+onBeforeMount(()=>{
+  getTrackingURL()
+  });
 
 const copy = async (id) => {
   // Get the text field

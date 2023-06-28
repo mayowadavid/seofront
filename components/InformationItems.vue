@@ -44,24 +44,24 @@
           <tr
             class="border-b border-gray-700"
             v-for="clickdata in clickdatas"
-            key="clickdata.id"
+            :key="clickdata.id"
           >
             <td class="py-3 px-2">
               <NuxtLink
-                :to="`/information-items/${clickdata.item_id}`"
+                :to="`/information-items/${clickdata.id}`"
                 title="Edit"
                 class="hover:text-white"
               >
-                {{ clickdata?.item_id }}
+                {{ clickdata?.id }}
               </NuxtLink>
             </td>
             <td class="py-3 px-2">
               <NuxtLink
-                :to="`/category-items/${clickdata?.Category_Item.unique_identifier}`"
+                :to="`/category-items/${clickdata?.categoryItemId}`"
                 title="Edit"
                 class="hover:text-white"
               >
-                {{ clickdata?.Category_Item.unique_identifier }}
+                {{ clickdata?.categoryItemId }}
               </NuxtLink>
             </td>
             <td class="py-3 px-2 tooltip">
@@ -72,7 +72,7 @@
               }}
             </td>
             <td class="py-3 px-2 capitalize">
-              {{ clickdata?.Category_Item.category }}
+              {{ clickdata?.categoryItem?.item_title }}
             </td>
             <!-- <td class="py-3 px-2 capitalize">{{ clickdata?.Category_Item.priority }}</td> -->
             <td class="py-3 px-2 capitalize">
@@ -82,12 +82,12 @@
                 {{ clickdata?.members_total }}
               </td> -->
             <td class="py-3 px-2 capitalize">
-              {{ formatDate(clickdata?.timestamp, "YYYY-MM-DD H:m") }}
+              {{ formatDate(clickdata?.createdAt, "YYYY-MM-DD H:m") }}
             </td>
             <td class="py-3 px-2">
               <div class="inline-flex items-center space-x-3">
                 <NuxtLink
-                  :to="`/information-items/${clickdata.item_id}`"
+                  :to="`/information-items/${clickdata.id}`"
                   title="Edit"
                   class="hover:text-white"
                   ><svg
@@ -161,7 +161,7 @@ const config = useRuntimeConfig();
 
 const props = defineProps({
   limit: Number,
-  itemid: Number,
+  informationItem: Array,
 });
 
 const formatDate = (dateString, formatString) => {
@@ -169,14 +169,9 @@ const formatDate = (dateString, formatString) => {
   return moment(date).format(formatString);
 };
 
-const setClickDatas = async () => {
-  const { limit, itemid } = toRefs(props);
-  const { data: data } = await useFetch(
-    `${config.API_BASE_URL}information-items/allByItemId?limit=${limit.value}&itemid=${itemid.value}`
-  );
 
-  clickdatas.value = data.value.data;
-  clickdatastotal.value = data.value.count;
+const setClickDatas = async () => {
+   clickdatas.value = props.informationItem.length > 0 ? [...props.informationItem]: [];
 };
 
 onBeforeMount(setClickDatas);

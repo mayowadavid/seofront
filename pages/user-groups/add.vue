@@ -28,71 +28,6 @@
   
           <div class="overflow-hidden shadow sm:rounded-md">
             <div class="px-4 py-5 sm:p-6">
-              <div class="col-span-12">
-                <div class="grid grid-cols-12">
-                  <div
-                    class="col-span-3 flex items-center text-sm font-medium text-gray-700"
-                  >
-                    ID
-                  </div>
-                  <div class="col-span-3">
-                    <input
-                      type="text"
-                      v-model="form.unique_identifier"
-                      :disabled="form.unique_identifier"
-                      id="unique_identifier"
-                      class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
-                      required
-                    />
-                  </div>
-                </div>
-              </div>
-  
-              <div class="flex flex-row mt-4">
-                <div class="basis-1/2 pr-1.5">
-                  <div class="col-span-12">
-                    <div class="grid grid-cols-12">
-                      <div
-                        class="col-span-3 flex items-center text-sm font-medium text-gray-700"
-                      >
-                        Created
-                      </div>
-                      <div class="col-span-9">
-                        <input
-                          type="text"
-                          v-model="form.timestamp"
-                          :disabled="form.timestamp"
-                          id="timestamp"
-                          class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
-                          required
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="basis-1/2 pl-1.5">
-                  <div class="col-span-12">
-                    <div class="grid grid-cols-12">
-                      <div
-                        class="col-span-3 flex items-center text-sm font-medium text-gray-700"
-                      >
-                        Created By
-                      </div>
-                      <div class="col-span-9">
-                        <input
-                          type="text"
-                          v-model="form.createdBy"
-                          :disabled="form.createdBy"
-                          id="username"
-                          class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
-                          required
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
               <div class="col-span-12 py-2">
               <div
                 class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-1 xl:grid-cols-12 gap-4 gap-x-4"
@@ -156,12 +91,12 @@
                 </div>
                 <div class="col-span-9">
                   <select
-                    v-model="form.ProjectId"
+                  v-model="form.projectId"
                     id="category"
                     class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
                     required
                   >
-                    <option v-for="project in projects" :key="project.id" :value="project.id">{{project?.name}}</option>
+                    <option v-for="project in projects" :value="project.id" :key="project.id">{{project?.name}}</option>
                   </select>
                 </div>
               </div>
@@ -208,15 +143,6 @@
                 </div>
               </div>
               </div>
-  
-            <!-- <div class="px-4 py-3 text-right sm:px-6 w-full sm:w-full">
-              <button
-                type="submit"
-                class="bg-[#bcbcbc] inline-flex justify-center rounded-md border border-transparent py-2 px-4 text-sm font-medium text-black shadow-sm hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-              >
-                Create category item
-              </button>
-            </div> -->
           </div>
         </form>
       </div>
@@ -263,215 +189,22 @@
   
   const shouldShowDialog = ref(false)
   const clickdatas = ref([])
-  const activeAccount = ref(
-  localStorage.getItem("activeAccount")
-)
   const projects = ref([])
   const activeProject = ref(0)
-  activeProject.value = localStorage.getItem('activeProject') ? parseInt(localStorage.getItem('activeProject')) : 0
-
-
-  // const defUser = JSON.parse(localStorage.getItem("user"));
-  let defaultCategory = localStorage.getItem("sometraffic_default_category")
-  let defaultGroup = localStorage.getItem("sometraffic_default_group")
-  let defaultPriority = localStorage.getItem("sometraffic_default_priority")
-  let user = localStorage.getItem("user")
-  
-  let timestamp = new Date().toLocaleTimeString()
-  
-  const uniqueUrl = ref("")
-  const isLoading = ref(false)
-  
-  setInterval(() => {
-    timestamp = new Date().toLocaleTimeString()
-  }, 10)
-  
-  function isValidUrl(urlString) {
-    let urlPattern = new RegExp(
-      "^(https?:\\/\\/)?" + // validate protocol
-        "((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|" + // validate domain name
-        "((\\d{1,3}\\.){3}\\d{1,3}))" + // validate OR ip (v4) address
-        "(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*" + // validate port and path
-        "(\\?[;&a-z\\d%_.~+=-]*)?" + // validate query string
-        "(\\#[-a-z\\d_]*)?$",
-      "i"
-    ) // validate fragment locator
-  
-    return !!urlPattern.test(urlString)
-  }
-  
   const form = reactive({
   name: "",
   description: "",
-  unique_identifier: "",
-  ProjectId: "",
-  createdBy: JSON.parse(user).userName,
-  timestamp,
+  projectId: "",
 })
-  
-  const createGroup = async () => {
-      const a_data = {
-        ProjectId: form.ProjectId,
-        createdBy: form.createdBy,
-        unique_identifier: form.unique_identifier,
-        name: form.name,
-        description: form.description,
-      }
-  
-      await useFetch(`${config.API_BASE_URL}groups/create`, {
-        method: "POST",
-        body: a_data,
-      })
-        .then((result) => {
-          if (result.data.value) {
-            AWN.success(result.data.value.message)
-            uniqueUrl.value = ""
-            navigateTo("/user-groups")
-          }
-          if (result.error.value) {
-            console.log("error value1", result.error.value.data.message)
-            AWN.alert(error)
-          }
-        })
-        .catch((error) => {
-          console.log("error value", error)
-          AWN.alert("Unable to create item.")
-        })
-  }
-  
-  const handleSave = async () => {
-    let a_data = {
-      username: form.username,
-      timestamp: new Date(),
-      name: form.name,
-      unique_identifier: form.unique_identifier,
-      description: form.description,
-      category: form.category,
-      priority: form.priority,
-      cat_group: form.group,
-      visibility: form.visibility,
-      url_1_link: form.url_1_link,
-      url_2_txt: form.url_2_txt,
-      url_2_link: form.url_2_link,
-      plan_frequency: form.plan_frequency,
-      automatic_status: form.automatic_status,
-    }
-  
-    await useFetch(`${config.API_BASE_URL}category-items/create`, {
-      method: "POST",
-      body: a_data,
-    })
-      .then((result) => {
-        if (result.data.value) {
-          AWN.success(result.data.value.message)
-          uniqueUrl.value = ""
-          navigateTo("/category-items")
-        }
-        if (result.error.value) {
-          console.log("error value1", result.error.value.data.message)
-          shouldShowDialog.value = false
-          AWN.alert(error)
-        }
-      })
-      .catch((error) => {
-        console.log("error value", error)
-        AWN.alert("Validation error")
-      })
-  }
-  
-  const getTrackingURL = async () => {
-    const { data, error } = await useFetch(
-      `${config.API_BASE_URL}groups/gettrackingurl`
-    )
-    if (data.value) {
-      form.unique_identifier = data.value.newTrackingURl
-    }
-    if (error.value) {
-      await AWN.alert(error.value.statusMessage)
-    }
-  }
-  
-  
-  const setLoading = () => {
-    isLoading.value = true
-  }
-  
-  const copy = async (id) => {
-    // Get the text field
-    var copyText = document.getElementById(id)
-  
-    // Select the text field
-    copyText.select()
-    copyText.setSelectionRange(0, 99999) // For mobile devices
-  
-    // Copy the text inside the text field
-    navigator.clipboard.writeText(copyText.value)
-    await AWN.success(copyText.value + " copied to clipboard!")
-    // Alert the copied text
-    //alert("Copied the text: " + copyText.value);
-  }
-  
-  const saveDefault = async (id) => {
-    localStorage.setItem("sometraffic_default_category", id)
-    await AWN.success(`Standard category set to ${id}.`)
-  }
-  const saveDefaultGroup = async (id) => {
-    localStorage.setItem("sometraffic_default_group", id)
-    await AWN.success(`Standard group set to ${id.replace("_", " ")}.`)
-  }
-  const saveDefaultPriority = async (id) => {
-    localStorage.setItem("sometraffic_default_priority", id)
-    await AWN.success(
-      `Standard priority set to ${
-        id === "1" ? "high" : id === "2" ? "medium" : id === "3" ? "low" : ""
-      }.`
-    )
-  }
-  
-  const setClickDatas = async () => {
-    const { data: data } = await useFetch(
-      `${config.API_BASE_URL}groups/all?userid=${JSON.parse(user).userId}`
-    )
-    clickdatas.value = data.value
-  }
+const store = useStore();
+projects.value = [...store.value.projects];
 
-  const setProjects = async () => {
-  const { data: data } = await useFetch(
-    `${config.API_BASE_URL}projects/all?AccountId=${activeAccount.value}`
-  )
+ const {createGroups} = actions;
+const createGroup =  () => {
+  createGroups(form);
+  }
   
-  projects.value = data.value
-  form.ProjectId = activeProject.value
-}
-  onBeforeMount(setProjects)
-  onBeforeMount(setClickDatas)
-  onBeforeMount(getTrackingURL)
-  
-  // onMounted(() => {
-  //   document.addEventListener("keydown", (event) => {
-  //     // event.keyCode or event.which  property will have the code of the pressed key
-  //     let keyCode = event.keyCode ? event.keyCode : event.which;
-  
-  //     // 13 points the enter key, 16 points the shift key
-  //     if (event.altKey && keyCode === 67) {
-  //       getTrackingURL();
-  
-  //       form.username = JSON.parse(user).userName;
-  //       form.timestamp = new Date().toLocaleTimeString();
-  //       form.description = "";
-  //       form.category = "";
-  //       form.name = "";
-  
-  //       form.group = "all";
-  //       form.priority = "";
-  //       form.visibility = "low";
-  //       form.url_1_link = "";
-  //       form.url_2_txt = "";
-  //       form.url_2_link = "";
-  //       form.plan_frequency = "";
-  //       form.automatic_status = "";
-  //     }
-  //   });
-  // });
+
+ 
   </script>
   

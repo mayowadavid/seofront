@@ -59,45 +59,54 @@
       </ul>
     </div>
     <div class="mt-2">
-      <div v-show="tab === 1">
-        <TasksAll :showSearch="true" />
+      <div v-if="taskAll.length > 0" v-show="tab === 1">
+        <TasksAll :showSearch="true" :task="taskAll" />
       </div>
-      <div v-show="tab === 2">
-        <TasksUnscheduled :showSearch="true" />
+      <div v-if="taskUnschedule.length > 0" v-show="tab === 2">
+        <TasksUnscheduled :showSearch="true" :task="taskUnschedule" />
       </div>
-      <div v-show="tab === 3">
-        <TasksPlanned :showSearch="true" />
+      <div v-if="taskPlanned.length > 0" v-show="tab === 3">
+        <TasksPlanned :showSearch="true" :task="taskPlanned" />
       </div>
-      <div v-show="tab === 4">
-        <TasksHistory :showSearch="true" />
+      <div  v-if="taskHistory.length > 0" v-show="tab === 4">
+        <TasksHistory :showSearch="true" :task="taskHistory" />
       </div>
     </div>
   </div>
 </template>
-  
-<script>
+<script setup>
+definePageMeta({
+  middleware: ["auth"],
+});
 const config = useRuntimeConfig();
-export default {
-  data() {
-    return {
-      tab: 1,
-    };
-  },
-  methods: {
-    activeTabOne() {
-      this.tab = 1;
-    },
-    activeTabTwo() {
-      this.tab = 2;
-    },
-    activeTabThree() {
-      this.tab = 3;
-    },
-    activeTabFour() {
-      this.tab = 4;
-    },
-  },
+const tab = reactive(1);
+const taskAll = ref([]);
+const taskUnschedule = ref([]);
+const taskPlanned = ref([]);
+const taskHistory = ref([]);
+const store = useStore();
+const projectId = store.value.projectId;
+const {fetchTaskByProject} = actions;
+taskAll.value = [...store.value.tasks];
+watch(()=> store?.value?.tasks, (newData)=>{
+  console.log('new', [...newData]);
+  taskAll.value = [...newData];
+})
+const activeTabOne = () => {
+      tab = 1;
 };
+const activeTabTwo = () => {
+      tab = 2;
+};
+const activeTabThree = () => {
+      this.tab = 3;
+};
+const activeTabFour = () => {
+      this.tab = 4;
+};
+onBeforeMount(()=>{
+  fetchTaskByProject(projectId);
+  })
 </script>
   
 <style>

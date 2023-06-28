@@ -59,13 +59,7 @@
             <tr
               class="border-b border-gray-700"
               :key="tr_url.id"
-              v-for="tr_url in tracking_urls?.filter((row) => {
-                return (
-                  row.tracking_url.includes(search.vaTrURL) ||
-                  row.destination_url.includes(search.vaTrURL) ||
-                  row.task_id.includes(search.vaTrURL)
-                );
-              })">
+              v-for="tr_url in tracking_urls">
               <td class="py-3 px-2 font-bold">{{ tr_url.id }}</td>
               <td class="py-3 px-2">
                 <NuxtLink
@@ -93,7 +87,7 @@
                   </span>
                 </div>
               </td>
-              <td class="py-3 px-2">{{ tr_url.task_id }}</td>
+              <td class="py-3 px-2">{{ tr_url.taskId }}</td>
               <td class="py-3 px-2">
                 <div class="inline-flex items-center space-x-3">
                   <NuxtLink
@@ -161,37 +155,22 @@ const search = reactive({
   vaTrURL: "",
   vaClDa: "",
 });
-
-
 const config = useRuntimeConfig();
 
-const setTrackingURLs = async () => {
-  const { data: data } = await useFetch(
-    `${config.API_BASE_URL}trackingurl/all`
-  );
-  tracking_urls.value = data.value;
+const {deleteTrackUrl, fetchTrackUrls} = actions;
+
+const setTrackingURLs = async() => {
+  const res = await fetchTrackUrls();
+  tracking_urls.value = [...res];
+  if(res){
+    console.log('data', res)
+   // tracking_urls.value = [...res];
+  }
 };
 
 const handleDelete = async () => {
   const id = localStorage.getItem("sometraffic_delete_trackingurl");
-  const { data, error } = await useFetch(
-    `${config.API_BASE_URL}trackingurl/delete/${id}`,
-    {
-      method: "GET",
-      params: { id: id },
-    }
-  );
-  if (data.value) {
-    shouldShowDialog.value = false;
-    await AWN.success(data.value.message);
-  }
-  if (error.value) {
-    shouldShowDialog.value = false;
-    await AWN.alert(error.value.statusMessage);
-  }
-
-  localStorage.removeItem("sometraffic_delete_trackingurl");
-  await setTrackingURLs();
+  deleteTrackUrl(id);
 };
 
 const destroy = async (id) => {

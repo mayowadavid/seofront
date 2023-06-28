@@ -14,7 +14,7 @@
               >
                 <nuxt-link
                   :to="{
-                    path: '/category-items/' + categoryItem?.unique_identifier,
+                    path: '/category-items/' + category?.id,
                   }"
                   >Edit Category Item</nuxt-link
                 >
@@ -25,7 +25,7 @@
                 <nuxt-link
                   :to="{
                     path: '/information-items/add',
-                    query: { id: categoryItem?.id },
+                    query: { id: category?.id },
                   }"
                   >Add Information</nuxt-link
                 >
@@ -37,8 +37,8 @@
                   :to="{
                     path: '/tasks/add',
                     query: {
-                      id: categoryItem?.id,
-                      priority: categoryItem?.priority,
+                      id: category?.id,
+                      priority: category?.priority,
                     },
                   }"
                   >Add Task</nuxt-link
@@ -56,7 +56,7 @@
                 <input
                   type="text"
                   :value="
-                    formatDate(categoryItem?.createdAt, 'YYYY-MM-DD HH:mm')
+                    formatDate(category?.createdAt, 'YYYY-MM-DD HH:mm')
                   "
                   class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
                   disabled
@@ -72,7 +72,7 @@
                 <input
                   placeholder="Need to enter the title or subject (obligatory)"
                   type="text"
-                  v-model="categoryItem.item_title"
+                  v-model="category.item_title"
                   class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
                   disabled
                 />
@@ -87,7 +87,7 @@
                 >
                   <button
                     type="button"
-                    @click="(event) => copy2(categoryItem?.url_1_link)"
+                    @click="(event) => copy2(category?.url_1_link)"
                     title="Copy Command To Clipboard"
                   >
                     <svg
@@ -106,7 +106,7 @@
                     </svg>
                   </button>
                   <a
-                    :href="categoryItem?.url_1_link"
+                    :href="category?.url_1_link"
                     target="_blank"
                     rel="noopener noreferrer"
                     title="Open To New Tap"
@@ -134,7 +134,7 @@
                   disabled
                   type="text"
                   id="url_1_link"
-                  v-model="categoryItem.url_1_link"
+                  v-model="category.url_1_link"
                   class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm input-w-loading"
                 />
                 <svg
@@ -190,7 +190,7 @@
                   </div>
                   <div class="col-span-9">
                     <select
-                      v-model="categoryItem.category"
+                      v-model="category.category"
                       id="category"
                       class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
                       disabled
@@ -216,7 +216,7 @@
                     >
                     <textarea
                       disabled
-                      v-model="categoryItem.information"
+                      v-model="category.information"
                       rows="6"
                       id="information"
                       class="bg-[#dddddd] py-2 px-3 text-gray-900 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
@@ -259,10 +259,10 @@
                       disabled
                       id="priority"
                       class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
-                      v-model="categoryItem.cat_group"
+                      v-model="category.group"
                     >
                       <option
-                        v-for="clickdata in clickdatas"
+                        v-for="clickdata in groups"
                         :key="clickdata.id"
                         :value="`${clickdata.id}`"
                       >
@@ -305,7 +305,7 @@
                       <li class="w-full">
                         <div class="flex items-center pl-3">
                           <input
-                            v-model="categoryItem.priority"
+                            v-model="category.priority"
                             id="horizontal-list-radio-id"
                             type="radio"
                             value="3"
@@ -322,7 +322,7 @@
                       <li class="w-full">
                         <div class="flex items-center pl-3">
                           <input
-                            v-model="categoryItem.priority"
+                            v-model="category.priority"
                             id="horizontal-list-radio-id"
                             type="radio"
                             value="2"
@@ -339,7 +339,7 @@
                       <li class="w-full">
                         <div class="flex items-center pl-3">
                           <input
-                            v-model="categoryItem.priority"
+                            v-model="category.priority"
                             id="horizontal-list-radio-license"
                             type="radio"
                             value="1"
@@ -370,7 +370,7 @@
                       <li class="w-full">
                         <div class="flex items-center pl-3">
                           <input
-                            v-model="categoryItem.visibility"
+                            v-model="category.visibility"
                             id="horizontal-list-radio-license"
                             type="radio"
                             value="private"
@@ -387,7 +387,7 @@
                       <li class="w-full">
                         <div class="flex items-center pl-3">
                           <input
-                            v-model="categoryItem.visibility"
+                            v-model="category.visibility"
                             id="horizontal-list-radio-id"
                             type="radio"
                             value="public"
@@ -417,7 +417,7 @@
                     <input
                       disabled
                       type="text"
-                      v-model="categoryItem.url_2_txt"
+                      v-model="category.url_2_txt"
                       id="url_2_txt"
                       class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
                     />
@@ -436,7 +436,7 @@
                     >
                       <button
                         type="button"
-                        @click="(event) => copy2(categoryItem.url_2_link)"
+                        @click="(event) => copy2(category.url_2_link)"
                         title="Copy Command To Clipboard"
                       >
                         <svg
@@ -455,7 +455,7 @@
                         </svg>
                       </button>
                       <a
-                        :href="categoryItem.url_2_link"
+                        :href="category.url_2_link"
                         target="_blank"
                         rel="noopener noreferrer"
                         title="Open To New Tab"
@@ -482,7 +482,7 @@
                     <input
                       disabled
                       type="text"
-                      v-model="categoryItem.url_2_link"
+                      v-model="category.url_2_link"
                       id="url_2_link"
                       class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
                     />
@@ -506,7 +506,7 @@
                   <div class="col-span-5 px-1.5">
                     <select
                       disabled
-                      v-model="categoryItem.plan_frequency"
+                      v-model="category.plan_frequency"
                       id="plan_frequency"
                       class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
                     >
@@ -543,7 +543,7 @@
                     >
                       <input
                         disabled
-                        v-model="categoryItem.automatic_status"
+                        v-model="category.automatic_status"
                         id="automatic_status"
                         type="checkbox"
                         true-value="on"
@@ -573,7 +573,7 @@
                   <div class="basis-1/3 px-1.5">
                     <input
                       type="text"
-                      v-model="categoryItem.username"
+                      :value="category.user.userName"
                       disabled
                       id="username"
                       class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
@@ -584,7 +584,7 @@
                   <div class="basis-1/3 px-1.5">
                     <input
                       type="text"
-                      v-model="categoryItem.timestamp"
+                      v-model="category.createdAt"
                       disabled
                       id="timestamp"
                       class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
@@ -602,7 +602,7 @@
                       <div class="basis-3/4">
                         <input
                           type="text"
-                          v-model="categoryItem.unique_identifier"
+                          v-model="category.id"
                           disabled
                           id="item_id"
                           class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
@@ -617,63 +617,19 @@
         </div>
       </div>
       <div class="grid content-center grid-cols-12 mt-3">
-          <input v-model="trackUrl" class="col-span-6 bg-[#dddddd] h-10 py-2 px-3 text-gray-900 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm" type="number" />  
+          <input type="text" v-model="copyDetails.taskId" class="col-span-6 bg-[#dddddd] h-10 py-2 px-3 text-gray-900 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm" />  
           <button
               type="submit"
-              @click="handleTrack"
+              @click="handleTask"
               class="bg-[#bcbcbc] col-span-2 mx-3 h-10 inline-flex justify-center rounded-md border border-transparent py-2 px-4 text-sm font-medium text-black shadow-sm hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
             >
               Copy Task
             </button>
       </div>
       <h1 class="font-bold py-4 capitalize">Add Task</h1>
-      <form @submit.prevent="createTask">
+      <form @submit.prevent="createTasks">
         <div class="border border-white border-solid overflow-hidden sm:rounded-md">
           <div class="px-4 py-5 sm:p-6">
-            <div class="flex flex-row py-2">
-              <div class="basis-1/3 px-1.5">
-                <input
-                  type="text"
-                  v-model="form.username"
-                  :disabled="form.username"
-                  id="username"
-                  class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
-                  required
-                />
-              </div>
-
-              <div class="basis-1/3 px-1.5">
-                <input
-                  type="text"
-                  v-model="form.timestamp"
-                  :disabled="form.timestamp"
-                  id="timestamp"
-                  class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
-                  required
-                />
-              </div>
-
-              <div class="basis-1/3 px-1.5">
-                <div class="flex flex-row">
-                  <div
-                    class="basis-1/4 flex items-center text-sm font-medium text-gray-700"
-                  >
-                    Task ID
-                  </div>
-                  <div class="basis-3/4">
-                    <input
-                      type="text"
-                      v-model="form.task_id"
-                      :disabled="form.task_id"
-                      id="item_id"
-                      class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
-                      required
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-
             <div class="col-span-12 sm:col-span-12 mt-2">
               <div
                 class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-1 xl:grid-cols-12 gap-4 gap-x-4"
@@ -819,11 +775,7 @@
                         id="status"
                         class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
                         required
-                        disabled
                       >
-                        <option :value="null" disabled>
-                          Unscheduled, planned or history
-                        </option>
                         <option value="unscheduled">Unscheduled</option>
                         <option value="planned">Planned</option>
                         <option value="history">History</option>
@@ -1096,14 +1048,14 @@
           <input v-model="trackUrl" class="col-span-6 bg-[#dddddd] h-10 py-2 px-3 text-gray-900 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm" type="number" />  
           <button
               type="submit"
-              @click="handleTrackDetails"
+              @click="handleTrack"
               class="bg-[#bcbcbc] col-span-2 mx-3 h-10 inline-flex justify-center rounded-md border border-transparent py-2 px-4 text-sm font-medium text-black shadow-sm hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
             >
               Copy Track Url
             </button>
         </div>
-        <div v-if="form.task_id !== ''" class="w-full border mt-6 border-white border-solid overflow-hidden sm:rounded-md">
-          <AddUrl :taskId="form.task_id" :trackUrlData="trackUrlDetails"  />
+        <div v-if="form.taskId !== ''" class="w-full border mt-6 border-white border-solid overflow-hidden sm:rounded-md">
+          <AddUrl />
       </div>
     </div>
   </div>
@@ -1146,51 +1098,32 @@ definePageMeta({
 
 const urlParams = new URLSearchParams(window.location.search);
 const id = urlParams.get("id");
-const priority = urlParams.get("priority");
+//const priority = urlParams.get("priority");
 
 const AWN = inject("$awn");
 const config = useRuntimeConfig();
 
-let local_data = localStorage.getItem("user");
-let timestamp = new Date().toLocaleTimeString();
-let status = "unscheduled";
-
-const categoryItem = ref(null);
-const clickdatas = ref([]);
 const trackUrlDetails = ref({});
-const trackUrl = ref('');
-const trackId = ref();
+const copyDetails = ref({
+  trackId: '',
+  taskId: '',
+});
 
-setInterval(() => {
-  timestamp = new Date().toLocaleTimeString();
-}, 10);
-
-const { data: catItem } = await useFetch(
-  `${config.API_BASE_URL}category-items/id/${id}`,
-  { key: id }
-);
-
-if (catItem.value) {
-  categoryItem.value = catItem.value;
-}
-
-//console.log("Item: ", categoryItem);
 
 const formatDate = (dateString, formatString) => {
   const date = new Date(dateString);
   return moment(date).format(formatString);
 };
 
-let form = reactive({
-  username: JSON.parse(local_data).userName,
-  timestamp,
-  task_id: "",
-  category_item_id: id,
+let form = ref({
+  clickCount: '0',
+  categoryItemId: id,
   information: "",
   title: "",
-  priority,
+  priority: "",
+  projectId: "",
   email_notification: "off",
-  status: status,
+  status: '',
   due_date: "",
   due_time: "21:00",
   url_1_txt: "",
@@ -1199,95 +1132,46 @@ let form = reactive({
   url_2_link: "",
 });
 
-const createTask = async () => {
-  let due_date_time = null;
-  if (form.due_date) {
-    status = "planned";
-    if (form.due_time) {
-      due_date_time = new Date(form.due_date + " " + form.due_time);
-      //console.log("Time: ", form.due_time);
-    } else {
-      due_date_time = new Date(form.due_date + " 9:00");
-    }
-  }
+const store = useStore();
 
-  const a_data = {
-    category_item_id: form.category_item_id,
-    username: form.username,
-    timestamp: new Date(),
-    task_id: form.task_id,
-    information: form.information,
-    title: form.title,
-    due_date_time,
-    priority: form.priority,
-    email_notification: form.email_notification === "on" ? true : false,
-    status: status,
-    url_1_txt: form.url_1_txt,
-    url_1_link: form.url_1_link,
-    url_2_txt: form.url_2_txt,
-    url_2_link: form.url_2_link,
-  };
-
-  await useFetch(`${config.API_BASE_URL}tasks/create`, {
-    method: "POST",
-    body: a_data,
-  })
-    .then((result) => {
-      if (result.data.value) {
-        AWN.success(result.data.value.message);
-        navigateTo("/tasks");
-      }
-      if (result.error.value) {
-        //console.log("error value1", result.error.value.data.message);
-        AWN.alert(result.error.value.data.message);
-      }
-    })
-    .catch((error) => {
-      //console.log("error value", error);
-      AWN.alert("Validation error");
-    });
-};
-
-const getTrackingURL = async () => {
-  const { data, error } = await useFetch(
-    `${config.API_BASE_URL}tasks/gettrackingurl`
-  );
-  if (data.value) {
-    form.task_id = data.value.newTrackingURl;
-  }
-  if (error.value) {
-    await AWN.alert(error.value.statusMessage);
-  }
-};
-
-const handleTrackDetails = async (e) => {
-  e.preventDefault();
-    const { data, error } = await useFetch(
-    `${config.API_BASE_URL}trackingurl/identifier/${trackUrl._value}`
-  );
-  if (data.value) {
-    trackUrlDetails.value = {...data.value};
-  }
-  if (error.value) {
-    
-  }
+const category = ref({
+    id: "",
+  information: "",
+  user: {
+    userName: "",
+  },
+  category: "",
+  item_title: "",
+  group: "",
+  priority: "",
+  visibility: null,
+  url_1_link: "",
+  url_2_txt: "",
+  url_2_link: "",
+  plan_frequency: "",
+  automatic_status: null,
+  createdAt: "",
+  project: ""
+});
+const {createTask, fetchTask} = actions;
+const createTasks = async () => {
+  createTask(form);
 }
 
 const handleTrack = async (e) => {
   e.preventDefault();
-    const { data, error } = await useFetch(
-    `${config.API_BASE_URL}tasks/identifier/${trackId._value}`
-  );
-  if (data.value) {
-    console.log(data.value);
-    form = {...form, ...data.value, task_id: form.task_id};
-  }
-  if (error.value) {
-    console.log(error)
-  }
-} 
+  //trackUrl
+ 
+}
 
-onBeforeMount(getTrackingURL);
+watch(()=>store.value?.singleTask, (newData)=>{
+form.value = {...form.value, ...newData, id: ''};
+});
+
+const handleTask = (e) => {
+  e.preventDefault();
+  fetchTask(copyDetails.value.taskId);
+} 
 
 const copy = async (id) => {
   // Get the text field
@@ -1309,10 +1193,23 @@ const copy2 = async (link) => {
   await AWN.success(link + " copied to clipboard!");
 };
 
-const setClickDatas = async () => {
-  const { data: data } = await useFetch(`${config.API_BASE_URL}groups/all`);
-  clickdatas.value = data.value;
-};
 
-onBeforeMount(setClickDatas);
+
+watch(()=>store.value?.singleCategory, (newData)=>{
+category.value = {...category.value, ...newData};
+});
+
+form.projectId = store.value?.projectId;
+
+watch(()=>store.value?.projectId, (newData)=>{
+form.projectId = newData;
+});
+
+
+
+onMounted(async ()=>{
+const {fetchOneCategories} = actions;
+fetchOneCategories(id);
+});
+
 </script>

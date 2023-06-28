@@ -154,11 +154,11 @@
                   >
                     <td class="py-3 px-2">
                       <NuxtLink
-                        :to="`/accounts/${account.unique_identifier}`"
+                        :to="`/accounts/${account.id}`"
                         title="Edit"
                         class="hover:text-white"
                       >
-                        {{ account?.unique_identifier }}
+                        {{ account?.id }}
                       </NuxtLink>
                     </td>
                     <td class="py-3 px-2">{{ account.name }}</td>
@@ -172,7 +172,7 @@
                     <td class="py-3 px-2">
                       <div class="inline-flex items-center space-x-3">
                         <NuxtLink
-                          :to="`/accounts/${account.unique_identifier}`"
+                          :to="`/accounts/${account.id}`"
                           title="Edit"
                         >
                           <span title="Edit" class="hover:text-white"
@@ -193,7 +193,7 @@
                           </span>
                         </NuxtLink>
                         <span
-                          @click="(event) => destroy(account.id, account.name)"
+                          @click="(event) => destroy(account.id)"
                           title="Delete"
                           class="hover:text-white"
                         >
@@ -255,9 +255,6 @@ const empty = () => {
 const searched = () => {
   searchdatas.value = accounts?._value?.filter((row) => {
     return (
-      row.createdBy
-        .toLowerCase()
-        ?.includes(search.vaClDa?.toString()?.toLowerCase()) ||
       row?.unique_identifier?.includes(search.vaClDa) ||
       row?.name
         ?.toLowerCase()
@@ -273,10 +270,7 @@ const searched = () => {
 const enterSearch = () => {
   searchdatas.value = accounts?._value?.filter((row) => {
     return (
-        row.createdBy
-        .toLowerCase()
-        ?.includes(search.vaClDa?.toString()?.toLowerCase()) ||
-      row?.unique_identifier?.includes(search.vaClDa) ||
+      row?.id?.includes(search.vaClDa) ||
       row?.name
         ?.toLowerCase()
         .includes(search.vaClDa?.toString()?.toLowerCase())  ||
@@ -288,67 +282,34 @@ const enterSearch = () => {
   accountsTotal.value = searchdatas.value.length
 }
 
-const defUser = JSON.parse(localStorage.getItem("user"))
-const name = ref(localStorage.getItem("sometraffic_delete_account_name"))
 const form = reactive({
   id: "",
-  user_id: "",
+  user: {
+    "userName": "",
+  },
   name: "",
   description: "",
-})
+});
 
-if (id) {
-  const { data: user } = await useFetch(`${config.API_BASE_URL}groups/${id}`, {
-    key: id,
-  })
+const store = useStore();
 
-  form.id = user.value.id
-  form.user_id = defUser.userId
-  form.name = user.value.name
-  form.description = user.value.description
+const setAccounts = () => {
+  
+  searchdatas.value = [...store.value.plan];
+  accounts.value = [...store.value.plan];
 }
 
 
-const setAccounts = async () => {
-  const { data: data } = await useFetch(`${config.API_BASE_URL}accounts/all`)
-  searchdatas.value = data.value
-  accounts.value = data.value
-  accountsTotal.value = data.value?.length
-}
-
-
-const destroy = async (id, deletingName) => {
+const destroy = async (id) => {
   shouldShowDialog.value = true
   localStorage.setItem("sometraffic_delete_account", id)
-  localStorage.setItem("sometraffic_delete_account_name", deletingName)
   name.value = deletingName
 }
-
-const handleDelete = async () => {
+const { deletePlan } = actions;
+const handleDelete = () => {
   const id = localStorage.getItem("sometraffic_delete_account")
-  const { data, error } = await useFetch(
-    `${config.API_BASE_URL}accounts/delete/${id}`,
-    {
-      method: "GET",
-      params: { id: id },
-    }
-  )
-
-  if (data.value) {
-    shouldShowDialog.value = false
-    await AWN.success(data.value.message)
-    const router = useRouter()
-    router.go()
-  }
-  if (error.value) {
-    shouldShowDialog.value = false
-    await AWN.alert(error.value.statusMessage)
-  }
-
+  deletePlan(id);
   localStorage.removeItem("sometraffic_delete_account")
-  localStorage.removeItem("sometraffic_delete_account_name")
-  name.value = ""
-  await setAccounts()
 }
 
 onBeforeMount(setAccounts)

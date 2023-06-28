@@ -58,7 +58,7 @@
                 >
                 <select
                   id="userType"
-                  v-model="form.userType"
+                  v-model="form.role"
                   autocomplete="userType"
                   class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-gray-800 focus:outline-none focus:ring-indigo-500 sm:text-sm"
                   required
@@ -77,14 +77,14 @@
                 >
                 <select
                   id="Account"
-                  v-model="form.AccountId"
+                  v-model="form.planId"
                   autocomplete="Account"
                   class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-gray-800 focus:outline-none focus:ring-indigo-500 sm:text-sm"
                   required
                 >
                   <option value="null">Select</option>
                   <option
-                    v-for="account in accounts"
+                    v-for="account in plans"
                     :key="account.id"
                     :value="account.id"
                   >
@@ -117,64 +117,32 @@ definePageMeta({
 const AWN = inject("$awn")
 const config = useRuntimeConfig()
 const { id } = await useRoute().params
-const form = reactive({
+const form = ref({
   id: id,
   userName: "",
   email: "",
   password: "",
-  userType: "",
-  AccountId: null,
+  role: "",
+  planId: null,
 })
-const accounts = ref([])
-
+const plans = ref([]);
+const store = useStore();
+const { fetchUser, updateUserData } = actions;
 // fetch the product
-const { data: user } = await useFetch(`${config.API_BASE_URL}users/${id}`, {
-  key: id,
+plans.value = [...store.value.plan];
+const updateUser = () => {
+  updateUserData(id, form.value);
+}
+
+
+
+onBeforeMount(async()=>{ 
+  const res = await fetchUser(id);
+  if(res){
+    console.log(res);
+    form.value = {...form.value, ...res};
+  }
 })
-// console.log('user value', user.value)
-if (user.value) {
-  form.id = user.value.id
-  form.userName = user.value.userName
-  form.email = user.value.email
-  form.userType = user.value.userType
-  form.AccountId = user.value.AccountId
-}
-
-const updateUser = async () => {
-  let u_data = {
-    id: form.id,
-    userName: form.userName,
-    email: form.email,
-    password: form.password,
-    userType: form.userType,
-    AccountId: form.AccountId
-  }
-  const { data, error } = await useFetch(
-    `${config.API_BASE_URL}users/update/${id}`,
-    {
-      method: "PUT",
-      params: { id: id },
-      body: u_data,
-    }
-  )
-  if (data.value) {
-    console.log("data value", data.value.message)
-    await AWN.success(data.value.message)
-    navigateTo("/users")
-  }
-  if (error.value) {
-    await AWN.alert(error.value.statusMessage)
-  }
-  // console.log('form value', form)
-  // location.assign('/users')
-}
-// const { data: users } = await useFetch('http://localhost:1111/api/users/all')
-const setAccounts = async () => {
-  const { data: data } = await useFetch(`${config.API_BASE_URL}accounts/all`)
-  accounts.value = data.value
-}
-onBeforeMount(setAccounts)
-
 </script>
 
 <style scoped></style>

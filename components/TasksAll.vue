@@ -98,20 +98,20 @@
           >
             <td class="py-3 px-2">
               <NuxtLink
-                :to="`/tasks/${clickdata.task_id}?id=${clickdata.Category_Item.id}`"
+                :to="`/tasks/${clickdata.id}?id=${clickdata.categoryItemId}`"
                 title="Edit"
                 class="hover:text-white"
               >
-                {{ clickdata?.task_id }}
+                {{ clickdata?.id }}
               </NuxtLink>
             </td>
             <td class="py-3 px-2">
               <NuxtLink
-                :to="`/category-items/${clickdata?.Category_Item.unique_identifier}`"
+                :to="`/category-items/${clickdata?.categoryItemId}`"
                 title="Edit"
                 class="hover:text-white"
               >
-                {{ clickdata?.Category_Item.unique_identifier }}
+                {{ clickdata?.categoryItemId }}
               </NuxtLink>
             </td>
             <td class="py-3 px-2">
@@ -122,7 +122,7 @@
               }}
             </td>
             <td class="py-3 px-2 capitalize">
-              {{ clickdata?.Category_Item.category }}
+              {{ clickdata?.categoryItem?.item_title }}
             </td>
             <!-- <td class="py-3 px-2 capitalize">{{ clickdata?.Category_Item.priority }}</td> -->
             <td class="py-3 px-2 capitalize">
@@ -141,7 +141,7 @@
             <td class="py-3 px-2">
               <div class="inline-flex items-center space-x-3">
                 <NuxtLink
-                  :to="`/tasks/${clickdata.task_id}?id=${clickdata.Category_Item.id}`"
+                  :to="`/tasks/${clickdata.id}?id=${clickdata.categoryItemId}`"
                   title="Edit"
                   class="hover:text-white"
                   ><svg
@@ -192,7 +192,7 @@
 <script>
 export default {
   name: "TasksAll",
-  props: ["limit", "showSearch", "itemid"],
+  props: ["limit", "showSearch", "allTask"],
 };
 </script>
 
@@ -211,11 +211,11 @@ const config = useRuntimeConfig();
 const props = defineProps({
   showSearch: Boolean,
   limit: Number,
-  itemid: Number,
+  task: Array,
 });
 
 const AWN = inject("$awn");
-
+const {deleteTasks} = actions;
 const { id } = useRoute().query;
 const shouldShowDialog = ref(false);
 const clickdatas = ref([]);
@@ -224,7 +224,7 @@ const clickdatasTotal = ref(0);
 const search = reactive({
   vaClDa: id !== undefined ? id: "",
 });
-const { limit, itemid, showSearch } = toRefs(props);
+const { limit, allTask, showSearch } = toRefs(props);
 // console.log("showSearch &  limit: ", limit.value, itemid.value, showSearch.value);
 
 const empty = () => {
@@ -235,12 +235,12 @@ const empty = () => {
 const searched = () => {
   searchdatas.value = clickdatas?._value?.filter((row) => {
     return (
-      row.username
+      row.user.userName
         .toLowerCase()
         ?.includes(search.vaClDa?.toString()?.toLowerCase()) ||
-      row?.task_id?.includes(search.vaClDa) ||
-      row?.Category_Item.unique_identifier?.includes(search.vaClDa) ||
-      row?.timestamp
+      row?.id?.includes(search.vaClDa) ||
+      row?.categoryItemId?.includes(search.vaClDa) ||
+      row?.createdAt
         ?.toLowerCase()
         .includes(search.vaClDa?.toString()?.toLowerCase()) ||
       row?.information
@@ -271,12 +271,12 @@ const searched = () => {
 const enterSearch = () => {
   searchdatas.value = clickdatas?._value?.filter((row) => {
     return (
-      row.username
+      row.user.userName
         .toLowerCase()
         ?.includes(search.vaClDa?.toString()?.toLowerCase()) ||
-      row?.task_id?.includes(search.vaClDa) ||
-      row?.Category_Item.unique_identifier?.includes(search.vaClDa) ||
-      row?.timestamp
+      row?.id?.includes(search.vaClDa) ||
+      row?.categoryItemId?.includes(search.vaClDa) ||
+      row?.createdAt
         ?.toLowerCase()
         .includes(search.vaClDa?.toString()?.toLowerCase()) ||
       row?.information
@@ -322,70 +322,16 @@ const nicePriority = (n) => {
   }
 };
 
-const setClickDatas = async () => {
-  // const { limit, itemid } = toRefs(props);
-  let query = "";
-  if (limit.value) {
-    query = `limit=${limit.value}`;
-  }
-  if (itemid.value) {
-    query += `&itemid=${itemid.value}`;
-  }
 
-  if (!localStorage.getItem('activeProject')) {
-    let timer = 0
-    const waitForActiveProject = setInterval(async () => {
-      if (localStorage.getItem('activeProject')) {
-        clearInterval(waitForActiveProject)
-        const { data: data } = await useFetch(
-          `${config.API_BASE_URL}tasks/allWithItemId?${query}&projectId=${localStorage.getItem('activeProject')}`
-        );
-      
-        clickdatas.value = data.value.data;
-        searchdatas.value = data.value.data;
-        clickdatasTotal.value = data.value.count;
 
-      } else {
-        timer += 1
-        if (timer / 10 > 5) {
-          clearInterval(waitForActiveProject)
-        }
-      }
-    }, 100)
-  } else {
-    const { data: data } = await useFetch(
-      `${config.API_BASE_URL}tasks/allWithItemId?${query}&projectId=${localStorage.getItem('activeProject')}`
-    );
-
-    clickdatas.value = data.value.data;
-    searchdatas.value = data.value.data;
-    clickdatasTotal.value = data.value.count;
-  }
-  if (id) {
-    searched();
-  }
+const setClickDatas = () => {
+   clickdatas.value = props.task.length > 0 ? [...props.task]: [];
+   searchdatas.value =props.task.length > 0 ? [...props.task]: [];
 };
 
 const handleDelete = async () => {
   const id = localStorage.getItem("sometraffic_delete_task");
-  const { data, error } = await useFetch(
-    `${config.API_BASE_URL}tasks/delete/${id}`,
-    {
-      method: "GET",
-      params: { id: id },
-    }
-  );
-  if (data.value) {
-    shouldShowDialog.value = false;
-    await AWN.success(data.value.message);
-  }
-  if (error.value) {
-    shouldShowDialog.value = false;
-    await AWN.alert(error.value.statusMessage);
-  }
-
-  localStorage.removeItem("sometraffic_delete_task");
-  await setClickDatas();
+  deleteTasks(id);
 };
 
 const destroy = async (id) => {

@@ -28,8 +28,8 @@
               <div class="basis-1/3 px-1.5">
                 <input
                   type="text"
-                  v-model="form.username"
-                  :disabled="form.username"
+                  :disabled="form?.user?.userName"
+                  :value="form?.user?.userName"
                   id="username"
                   class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
                   required
@@ -39,8 +39,8 @@
               <div class="basis-1/3 px-1.5">
                 <input
                   type="text"
-                  v-model="form.timestamp"
-                  :disabled="form.timestamp"
+                  v-model="form.createdAt"
+                  :disabled="form.createdAt"
                   id="timestamp"
                   class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
                   required
@@ -57,8 +57,8 @@
                   <div class="basis-3/4">
                     <input
                       type="text"
-                      v-model="form.item_id"
-                      :disabled="form.item_id"
+                      v-model="form.id"
+                      :disabled="form.id"
                       id="item_id"
                       class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
                       required
@@ -358,11 +358,11 @@ setInterval(() => {
   timestamp = new Date().toLocaleTimeString();
 }, 10);
 
-const form = reactive({
+const form = ref({
   id: "",
-  category_item_id: "",
-  username: "",
+  categoryItemId: "",
   timestamp: "",
+  user: {},
   item_id: "",
   url_1_txt: "",
   url_1_link: "",
@@ -375,77 +375,26 @@ const form = reactive({
   createdAt: "",
 });
 
-const { data: user } = await useFetch(
-  `${config.API_BASE_URL}information-items/identifier/${id}`,
-  { key: id }
-);
+const store = useStore();
+form.value = {...form.value, ...store.value?.singleInformation}
+watch(()=>store.value?.singleInformation, (newData)=>{
+form.value = {...form.value, ...newData};
+});
 
-if (user.value) {
-  form.id = user.value.id;
-  form.category_item_id = user.value.category_item_id;
-  form.username = user.value.username;
-  form.timestamp = new Date(user.value.timestamp).toLocaleTimeString();
-  form.item_id = user.value.item_id;
-  form.information = user.value.information;
-
-  form.url_1_txt = user.value.url_1_txt;
-  form.url_1_link = user.value.url_1_link;
-  form.url_2_txt = user.value.url_2_txt;
-  form.url_2_link = user.value.url_2_link;
-
-  form.posts_per_month = user.value.posts_per_month;
-  form.posts_today = user.value.posts_today;
-  form.members_total = user.value.members_total;
-  form.members_new = user.value.members_new;
-  form.createdAt = user.value.createdAt;
-}
 
 const formatDate = (dateString, formatString) => {
   const date = new Date(dateString);
   return moment(date).format(formatString);
 };
 
+const {updateInformation} = actions;
 const updateInformationItem = async () => {
   const regex = /[.,\s]/g;
-  const a_data = {
-    id: form.id,
-    category_item_id: form.category_item_id,
-    username: form.username,
-    timestamp: new Date(),
-    item_id: form.item_id,
-    information: form.information,
-    url_1_txt: form.url_1_txt,
-    url_1_link: form.url_1_link,
-    url_2_txt: form.url_2_txt,
-    url_2_link: form.url_2_link,
-
-    posts_per_month: form.posts_per_month
-      ? form.posts_per_month.replace(regex, "")
-      : null,
-    posts_today: form.posts_today ? form.posts_today.replace(regex, "") : null,
-    members_total: form.members_total
-      ? form.members_total.replace(regex, "")
-      : null,
-    members_new: form.members_new ? form.members_new.replace(regex, "") : null,
-  };
-
-  await useFetch(`${config.API_BASE_URL}information-items/update/${id}`, {
-    method: "PUT",
-    body: a_data,
-  })
-    .then((result) => {
-      if (result.data.value) {
-        AWN.success(result.data.value.message);
-        navigateTo("/information-items");
-      }
-      if (result.error.value) {
-        console.log("error value1", result.error.value.data.message);
-        AWN.alert(result.error.value.data.message);
-      }
-    })
-    .catch((error) => {
-      console.log("error value", error);
-      AWN.alert("Validation error");
-    });
+  updateInformation(form.id, form.value);
 };
+
+onMounted(()=>{
+const {fetchInformation} = actions;
+fetchInformation(id);
+});
 </script>

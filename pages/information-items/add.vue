@@ -6,50 +6,6 @@
       <form @submit.prevent="createInformationItem">
         <div class="overflow-hidden shadow sm:rounded-md">
           <div class="px-4 py-5 sm:p-6">
-            <div class="flex flex-row py-2">
-              <div class="basis-1/3 px-1.5">
-                <input
-                  type="text"
-                  v-model="form.username"
-                  :disabled="form.username"
-                  id="username"
-                  class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
-                  required
-                />
-              </div>
-
-              <div class="basis-1/3 px-1.5">
-                <input
-                  type="text"
-                  v-model="form.timestamp"
-                  :disabled="form.timestamp"
-                  id="timestamp"
-                  class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
-                  required
-                />
-              </div>
-
-              <div class="basis-1/3 px-1.5">
-                <div class="flex flex-row">
-                  <div
-                    class="basis-1/4 flex items-center text-sm font-medium text-gray-700"
-                  >
-                    Item ID
-                  </div>
-                  <div class="basis-3/4">
-                    <input
-                      type="text"
-                      v-model="form.item_id"
-                      :disabled="form.item_id"
-                      id="item_id"
-                      class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
-                      required
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-
             <div class="col-span-12 sm:col-span-12 mt-2">
               <div
                 class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-1 xl:grid-cols-12 gap-4 gap-x-4"
@@ -333,21 +289,13 @@ definePageMeta({
 });
 const urlParams = new URLSearchParams(window.location.search);
 const id = urlParams.get("id");
-
 const AWN = inject("$awn");
 const config = useRuntimeConfig();
-
-let local_data = localStorage.getItem("user");
-let timestamp = new Date().toLocaleTimeString();
-
-setInterval(() => {
-  timestamp = new Date().toLocaleTimeString();
-}, 10);
-
+const store = useStore();
+const projectId = store.value.projectId;
 const form = reactive({
-  category_item_id: id,
-  username: JSON.parse(local_data).userName,
-  timestamp,
+  categoryItemId: id,
+  projectId,
   item_id: "",
   url_1_txt: "",
   url_1_link: "",
@@ -358,61 +306,11 @@ const form = reactive({
   members_total: null,
   members_new: null,
 });
-
+const {createInformation} = actions;
 const createInformationItem = async () => {
-  const regex = /[.,\s]/g;
-  const a_data = {
-    category_item_id: form.category_item_id,
-    username: form.username,
-    timestamp: new Date(),
-    item_id: form.item_id,
-    information: form.information,
-    url_1_txt: form.url_1_txt,
-    url_1_link: form.url_1_link,
-    url_2_txt: form.url_2_txt,
-    url_2_link: form.url_2_link,
-    posts_per_month: form.posts_per_month
-      ? form.posts_per_month.replace(regex, "")
-      : null,
-    posts_today: form.posts_today ? form.posts_today.replace(regex, "") : null,
-    members_total: form.members_total
-      ? form.members_total.replace(regex, "")
-      : null,
-    members_new: form.members_new ? form.members_new.replace(regex, "") : null,
-  };
-
-  await useFetch(`${config.API_BASE_URL}information-items/create`, {
-    method: "POST",
-    body: a_data,
-  })
-    .then((result) => {
-      if (result.data.value) {
-        AWN.success(result.data.value.message);
-        navigateTo("/information-items");
-      }
-      if (result.error.value) {
-        console.log("error value1", result.error.value.data.message);
-        AWN.alert(result.error.value.data.message);
-      }
-    })
-    .catch((error) => {
-      console.log("error value", error);
-      AWN.alert("Validation error");
-    });
+  createInformation(form);
 };
 
-const getTrackingURL = async () => {
-  const { data, error } = await useFetch(
-    `${config.API_BASE_URL}information-items/gettrackingurl`
-  );
-  if (data.value) {
-    form.item_id = data.value.newTrackingURl;
-  }
-  if (error.value) {
-    await AWN.alert(error.value.statusMessage);
-  }
-};
-onBeforeMount(getTrackingURL);
 
 const copy = async (id) => {
   // Get the text field

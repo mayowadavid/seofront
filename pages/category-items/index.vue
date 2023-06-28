@@ -122,18 +122,18 @@
             >
               <td class="py-3 px-2">
                 <NuxtLink
-                  :to="`/category-items/${clickdata.unique_identifier}`"
+                  :to="`/category-items/${clickdata.id}`"
                   title="Edit"
                   class="hover:text-white"
                 >
-                  {{ clickdata?.unique_identifier }}
+                  {{ clickdata?.id }}
                 </NuxtLink>
               </td>
               <td class="py-3 px-2 title-td">{{ clickdata?.item_title }}</td>
               <td class="py-3 px-2 capitalize">{{ clickdata?.category }}</td>
-              <td class="py-3 px-2 capitalize">{{ clickdata?.priority }}</td>
+              <td class="py-3 px-2 capitalize">{{ clickdata?.priority || 'N/A' }}</td>
               <td class="py-3 px-2 capitalize">
-                {{ clickdata?.Users_Group?.name }}
+                {{ clickdata?.groups?.name || 'N/A' }}
               </td>
               <!-- <td class="py-3 px-2 capitalize">{{ clickdata?.priority }}</td>
               <td class="py-3 px-2 capitalize">{{ clickdata?.visibility }}</td>
@@ -143,7 +143,7 @@
               <td class="py-3 px-2">
                 <div class="inline-flex items-center space-x-3">
                   <NuxtLink
-                    :to="`/category-items/${clickdata.unique_identifier}`"
+                    :to="`/category-items/${clickdata.id}`"
                     title="Edit"
                     class="hover:text-white"
                     ><svg
@@ -309,7 +309,7 @@ const enterSearch = () => {
 };
 
 const setClickDatas = async () => {
-  if(!localStorage.getItem('activeProject')){
+  if(!localStorage.getItem('token')){
     let timer = 0
     const waitForActiveProject = setInterval(async() => {
       if(localStorage.getItem('activeProject')){
@@ -374,6 +374,12 @@ const setClickDatas = async () => {
 
 };
 
+// const fetchCategory = async() => {
+//   const { data: data } = await useFetch(
+//       `${config.API_BASE_URL}category-items/allwithproject?projectId=${localStorage.getItem('activeProject')}`
+//       );
+// }
+
 const niceFrequencyDisplay = (n) => {
   if (n === 4) {
     return "4 hours";
@@ -429,6 +435,11 @@ const handleDelete = async () => {
   localStorage.removeItem("sometraffic_delete_category");
   await setClickDatas();
 };
+const store = useStore();
+watch(()=> store?.value?.categories, (newData)=>{
+  clickdatas.value = [...newData];
+  searchdatas.value = [...newData];
+})
 
 onMounted(() => {
   document.addEventListener("keydown", (event) => {
@@ -440,8 +451,7 @@ onMounted(() => {
     }
   });
 });
-
-onBeforeMount(setClickDatas);
+//onBeforeMount(setClickDatas);
 </script>
 
 <style scoped>

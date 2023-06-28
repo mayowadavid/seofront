@@ -53,14 +53,14 @@
 
               <div class="col-span-10 sm:col-span-12">
                 <label
-                  for="userType"
+                  for="role"
                   class="block text-sm font-medium text-gray-700"
                   >User Type</label
                 >
                 <select
-                  id="userType"
-                  v-model="form.userType"
-                  autocomplete="userType"
+                  id="role"
+                  v-model="form.role"
+                  autocomplete="role"
                   class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-gray-800 focus:outline-none focus:ring-indigo-500 sm:text-sm"
                   required
                 >
@@ -72,19 +72,19 @@
 
               <div class="col-span-10 sm:col-span-12">
                 <label
-                  for="userType"
+                  for="role"
                   class="block text-sm font-medium text-gray-700"
                   >Account</label
                 >
                 <select
                   id="Account"
-                  v-model="form.AccountId"
+                  v-model="form.planId"
                   autocomplete="Account"
                   class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-gray-800 focus:outline-none focus:ring-indigo-500 sm:text-sm"
                   required
                 >
                 <option value=null>Select</option>
-                <option v-for="account in accounts" :key="account.id" :value="account.id">{{account.name}}</option>
+                <option v-for="account in plans" :key="account.id" :value="account.id">{{account.name}}</option>
                 </select>
               </div>
             </div>
@@ -115,53 +115,19 @@ const form = reactive({
   userName: "",
   email: "",
   password: "",
-  userType: "",
-  AccountId: null,
+  role: "",
+  planId: null,
 });
 
-const accounts = ref([])
+const store = useStore();
+
+const plans = ref([]);
+plans.value = [...store.value.plan];
+const { signUp } = actions;
 const createUser = async () => {
-  let a_data = {
-    userName: form.userName,
-    email: form.email,
-    password: form.password,
-    userType: form.userType,
-    AccountId: form.AccountId,
-  };
-
-  // const { data, error } =
-  await useFetch(`${config.API_BASE_URL}users/create`, {
-    method: "POST",
-    body: a_data,
-  })
-    .then((result) => {
-      if (result.data.value) {
-        AWN.success(result.data.value.message);
-        navigateTo("/users");
-      }
-      if (result.error.value) {
-        console.log("error", result.error.value.data.message);
-        AWN.alert(error);
-      }
-    })
-    .catch((error) => {
-      console.log("error", error);
-      AWN.alert("Validation error");
-    });
-  // if (data.value) {
-
-  // }
-  // if (error.value) {
-
-  // }
-
-  // location.assign('/users')
+  signUp(form);
 };
-const setAccounts = async () => {
-  const { data: data } = await useFetch(`${config.API_BASE_URL}accounts/all`)
-  accounts.value = data.value
-}
-onBeforeMount(setAccounts)
+
 </script>
 
 <style scoped></style>

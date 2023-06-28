@@ -48,12 +48,12 @@
             <tr
               class="border-b border-gray-700"
               v-for="user in users"
-              key="user.id"
+              :key="user.id"
             >
               <td class="py-3 px-2 font-bold">{{ user.userName }}</td>
               <td class="py-3 px-2">{{ user.email }}</td>
-              <td class="py-3 px-2">{{ user.userType }}</td>
-              <td class="py-3 px-2">{{ getAccountName(user.AccountId) }}</td>
+              <td class="py-3 px-2">{{ user.role }}</td>
+              <td class="py-3 px-2">{{ user?.plan[0]?.name }}</td>
               <td class="py-3 px-2">
                 <div class="inline-flex items-center space-x-3">
                   <NuxtLink
@@ -112,49 +112,26 @@ import { Modal } from "usemodal-vue3";
 definePageMeta({
   middleware: ["auth", "admin"],
 });
-const user = JSON.parse(localStorage.getItem('user'))
+
 const AWN = inject("$awn");
 
 const shouldShowDialog = ref(false);
 const users = ref([]);
 const accounts = ref([]);
 const config = useRuntimeConfig();
-
+const {allUsers} = actions;
 const setUsers = async () => {
-  const { data: data } = await useFetch(`${config.API_BASE_URL}users/all`);
-  users.value = data.value;
+  const res = await allUsers();
+  if(res){
+    console.log(res)
+    users.value = [...res];
+  }
 };
-
-const setAccounts = async () => {
-  const { data: data } = await useFetch(`${config.API_BASE_URL}accounts/all`)
-  accounts.value = data.value
-}
-
-const getAccountName = (id) => {
-  const account = accounts.value.find(account => account.id === id)
-  return account ? account.name : ''
-}
 
 const handleDelete = async () => {
   const id = localStorage.getItem("sometraffic_delete_user");
-  const { data, error } = await useFetch(
-    `${config.API_BASE_URL}users/delete/${id}`,
-    {
-      method: "GET",
-      params: { id: id },
-    }
-  );
-  if (data.value) {
-    shouldShowDialog.value = false;
-    await AWN.success(data.value.message);
-  }
-  if (error.value) {
-    shouldShowDialog.value = false;
-    await AWN.alert(error.value.statusMessage);
-  }
 
   localStorage.removeItem("sometraffic_delete_user");
-  await setUsers();
 };
 
 const destroy = async (id) => {
@@ -163,8 +140,6 @@ const destroy = async (id) => {
 };
 
 onBeforeMount(setUsers);
-onBeforeMount(setAccounts);
-// onMounted(setUsers)
 </script>
 
 <style scoped></style>

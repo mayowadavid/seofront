@@ -49,27 +49,6 @@
             </div>
 
             <div class="flex flex-row mt-4">
-              <div class="basis-1/2 pr-1.5">
-                <div class="col-span-12">
-                  <div class="grid grid-cols-12">
-                    <div
-                      class="col-span-3 flex items-center text-sm font-medium text-gray-700"
-                    >
-                      Created
-                    </div>
-                    <div class="col-span-9">
-                      <input
-                        type="text"
-                        v-model="form.timestamp"
-                        :disabled="form.timestamp"
-                        id="timestamp"
-                        class="bg-[#dddddd] disabled:bg-gray-300 disabled:text-gray-500 h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
-                        required
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
               <div class="basis-1/2 pl-1.5">
                 <div class="col-span-12">
                   <div class="grid grid-cols-12">
@@ -123,8 +102,8 @@
                       <div class="col-span-9">
                         <input
                           type="text"
-                          :value="activeAccountData.name"
-                          :disabled="activeAccountData.name"
+                          :value="user.userName"
+                          :disabled="user.userName"
                           id="username"
                           class="bg-[#dddddd] disabled:bg-gray-300 disabled:text-gray-500 h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
                           required
@@ -212,26 +191,12 @@ const config = useRuntimeConfig()
 
 const shouldShowDialog = ref(false)
 const clickdatas = ref([])
-const activeAccount = ref(
-  localStorage.getItem("activeAccount")
-)
-const activeAccountData = ref(
-  JSON.parse(localStorage.getItem("activeAccountData"))
-)
-// const defUser = JSON.parse(localStorage.getItem("user"));
-let defaultCategory = localStorage.getItem("sometraffic_default_category")
-let defaultGroup = localStorage.getItem("sometraffic_default_group")
-let defaultPriority = localStorage.getItem("sometraffic_default_priority")
-let user = localStorage.getItem("user")
 
-let timestamp = new Date().toLocaleTimeString()
+// const defUser = JSON.parse(localStorage.getItem("user"));
 
 const uniqueUrl = ref("")
 const isLoading = ref(false)
-
-setInterval(() => {
-  timestamp = new Date().toLocaleTimeString()
-}, 10)
+const user = ref({});
 
 function isValidUrl(urlString) {
   let urlPattern = new RegExp(
@@ -250,41 +215,13 @@ function isValidUrl(urlString) {
 const form = reactive({
   name: "",
   description: "",
-  unique_identifier: "",
-  timestamp,
-  createdBy: JSON.parse(user).userName,
 })
+const store = useStore();
+user.value = {...store.value.user};
+const {createPlan} = actions;
 
-const createProject = async () => {
-  const a_data = {
-    AccountId: activeAccount.value,
-    createdBy: form.createdBy,
-    unique_identifier: form.unique_identifier,
-    name: form.name,
-    description: form.description,
-  }
-  await useFetch(`${config.API_BASE_URL}projects/create`, {
-    method: "POST",
-    body: a_data,
-  })
-    .then((result) => {
-      if (result.data.value) {
-        AWN.success(result.data.value.message)
-        uniqueUrl.value = ""
-        navigateTo("/projects").then(() => {
-          const router = useRouter()
-          router.go("/projects")
-        })
-      }
-      if (result.error.value) {
-        console.log("error value1", result.error.value.data.message)
-        AWN.alert(error)
-      }
-    })
-    .catch((error) => {
-      console.log("error value", error)
-      AWN.alert("Unable to create item.")
-    })
+const createProject = () => {
+ createPlan(form);
 }
 
 //   const handleSave = async () => {

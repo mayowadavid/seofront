@@ -22,7 +22,7 @@ import defu from 'file://C:/Users/mayowa/Documents/sometraffic_frontend_0.33-mai
 import { toRouteMatcher, createRouter } from 'file://C:/Users/mayowa/Documents/sometraffic_frontend_0.33-main/node_modules/radix3/dist/index.mjs';
 import axios from 'file://C:/Users/mayowa/Documents/sometraffic_frontend_0.33-main/node_modules/axios/index.js';
 
-const _runtimeConfig = {"app":{"baseURL":"/","buildAssetsDir":"/_nuxt/","cdnURL":""},"nitro":{"envPrefix":"NUXT_","routeRules":{"/__nuxt_error":{"cache":false},"/f/:id":{"ssr":true},"/logins/**":{"ssr":false},"/dashboard/**":{"ssr":false},"/users/**":{"ssr":false},"/category-items/**":{"ssr":false},"/information-items/**":{"ssr":false},"/tasks/**":{"ssr":false},"/tracking-url/**":{"ssr":false},"/emails/**":{"ssr":false},"/click-list/**":{"ssr":false},"/user-groups/**":{"ssr":false},"/redirecting/**":{"ssr":false},"/**":{"ssr":false}}},"public":{"BASE_URL":"http://localhost:3000","API_BASE_URL":"http://localhost:5000/api/"}};
+const _runtimeConfig = {"app":{"baseURL":"/","buildAssetsDir":"/_nuxt/","cdnURL":""},"nitro":{"envPrefix":"NUXT_","routeRules":{"/__nuxt_error":{"cache":false},"/f/:id":{"ssr":true},"/logins/**":{"ssr":false},"/dashboard/**":{"ssr":false},"/users/**":{"ssr":false},"/category-items/**":{"ssr":false},"/information-items/**":{"ssr":false},"/tasks/**":{"ssr":false},"/tracking-url/**":{"ssr":false},"/emails/**":{"ssr":false},"/click-list/**":{"ssr":false},"/user-groups/**":{"ssr":false},"/redirecting/**":{"ssr":false},"/**":{"ssr":false}}},"public":{"BASE_URL":"http://localhost:3000","API_BASE_URL":"http://localhost:4000/"}};
 const ENV_PREFIX = "NITRO_";
 const ENV_PREFIX_ALT = _runtimeConfig.nitro.envPrefix ?? process.env.NITRO_ENV_PREFIX ?? "_";
 const getEnv = (key) => {

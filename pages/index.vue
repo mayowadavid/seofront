@@ -1,8 +1,10 @@
 <script setup>
+//import {useStore} from '../composables/states';
 definePageMeta({
-  // middleware: ["guest"],
+   middleware: ["guest"],
   layout: "front",
 });
+
 </script>
 
 <template>

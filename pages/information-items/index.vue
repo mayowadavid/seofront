@@ -91,20 +91,20 @@
             >
               <td class="py-3 px-2">
                 <NuxtLink
-                  :to="`/information-items/${clickdata.item_id}`"
+                  :to="`/information-items/${clickdata.id}`"
                   title="Edit"
                   class="hover:text-white"
                 >
-                  {{ clickdata?.item_id }}
+                  {{ clickdata?.id }}
                 </NuxtLink>
               </td>
               <td class="py-3 px-2">
                 <NuxtLink
-                  :to="`/category-items/${clickdata?.Category_Item.unique_identifier}`"
+                  :to="`/category-items/${clickdata?.id}`"
                   title="Edit"
                   class="hover:text-white"
                 >
-                  {{ clickdata?.Category_Item.unique_identifier }}
+                  {{ clickdata?.id }}
                 </NuxtLink>
               </td>
               <td class="py-3 px-2 tooltip">
@@ -115,7 +115,7 @@
                 }}
               </td>
               <td class="py-3 px-2 capitalize">
-                {{ clickdata?.Category_Item.category }}
+                {{ clickdata?.categoryItem?.item_title || 'N/A' }}
               </td>
               <!-- <td class="py-3 px-2 capitalize">{{ clickdata?.Category_Item.priority }}</td> -->
               <td class="py-3 px-2 capitalize">
@@ -125,12 +125,12 @@
                 {{ clickdata?.members_total }}
               </td> -->
               <td class="py-3 px-2 capitalize">
-                {{ formatDate(clickdata?.timestamp, "YYYY-MM-DD H:m") }}
+                {{ formatDate(clickdata?.createdAt, "YYYY-MM-DD H:m") }}
               </td>
               <td class="py-3 px-2">
                 <div class="inline-flex items-center space-x-3">
                   <NuxtLink
-                    :to="`/information-items/${clickdata.item_id}`"
+                    :to="`/information-items/${clickdata.id}`"
                     title="Edit"
                     class="hover:text-white"
                     ><svg
@@ -196,6 +196,18 @@ const clickdatasTotal = ref(0);
 const search = reactive({
   vaClDa: id !== "" ? id : "",
 });
+const {fetchInformationByProject} = actions;
+const store = useStore();
+const projectId = store.value.projectId;
+clickdatas.value = [...store.value.information];
+searchdatas.value = [...store.value.information];
+watch(()=> store?.value?.information, (newData)=>{
+  console.log('new', newData);
+  clickdatas.value = [...newData];
+  searchdatas.value = [...newData];
+})
+
+console.log('info', clickdatas);
 
 const config = useRuntimeConfig();
 
@@ -210,7 +222,7 @@ const searched = () => {
       row.username
         .toLowerCase()
         ?.includes(search.vaClDa?.toString()?.toLowerCase()) ||
-      row?.item_id?.includes(search.vaClDa) ||
+      row?.id?.includes(search.vaClDa) ||
       row?.Category_Item.unique_identifier?.includes(search.vaClDa) ||
       row?.timestamp
         ?.toLowerCase()
@@ -292,38 +304,38 @@ const formatDate = (dateString, formatString) => {
 
 const setClickDatas = async () => {
 
-  if (!localStorage.getItem('activeProject')) {
-    let timer = 0
-    const waitForActiveProject = setInterval(async () => {
-      if (localStorage.getItem('activeProject')) {
-        clearInterval(waitForActiveProject)
-        const { data: data } = await useFetch(
-          `${config.API_BASE_URL}information-items/all?projectId=${localStorage.getItem('activeProject')}`
-        );
+  // if (!localStorage.getItem('activeProject')) {
+  //   let timer = 0
+  //   const waitForActiveProject = setInterval(async () => {
+  //     if (localStorage.getItem('activeProject')) {
+  //       clearInterval(waitForActiveProject)
+  //       const { data: data } = await useFetch(
+  //         `${config.API_BASE_URL}information-items/all?projectId=${localStorage.getItem('activeProject')}`
+  //       );
 
-        clickdatas.value = data.value.data;
-        searchdatas.value = data.value.data;
-        clickdatasTotal.value = data.value.count;
+  //       clickdatas.value = data.value.data;
+  //       searchdatas.value = data.value.data;
+  //       clickdatasTotal.value = data.value.count;
 
-      } else {
-        timer += 1
-        if (timer / 10 > 5) {
-          clearInterval(waitForActiveProject)
-        }
-      }
-    }, 100)
-  } else {
-    const { data: data } = await useFetch(
-      `${config.API_BASE_URL}information-items/all?projectId=${localStorage.getItem('activeProject')}`
-    );
+  //     } else {
+  //       timer += 1
+  //       if (timer / 10 > 5) {
+  //         clearInterval(waitForActiveProject)
+  //       }
+  //     }
+  //   }, 100)
+  // } else {
+  //   const { data: data } = await useFetch(
+  //     `${config.API_BASE_URL}information-items/all?projectId=${localStorage.getItem('activeProject')}`
+  //   );
 
-    clickdatas.value = data.value.data;
-    searchdatas.value = data.value.data;
-    clickdatasTotal.value = data.value.count;
-  }
-  if (id) {
-    searched();
-  }
+  //   clickdatas.value = data.value.data;
+  //   searchdatas.value = data.value.data;
+  //   clickdatasTotal.value = data.value.count;
+  // }
+  // if (id) {
+  //   searched();
+  // }
 
 };
 
@@ -381,8 +393,11 @@ const destroy = async (id) => {
   shouldShowDialog.value = true;
   localStorage.setItem("sometraffic_delete_info", id);
 };
-
-onBeforeMount(setClickDatas);
+onBeforeMount(()=>{
+  fetchInformationByProject(projectId);
+  console.log('id', projectId);
+  })
+//onBeforeMount(setClickDatas);
 </script>
 
 <style scoped>

@@ -194,7 +194,7 @@
               <div class="basis-1/4">
                 <input
                   type="text"
-                  v-model="form.task_id"
+                  v-model="form.taskId"
                   id="task_id"
                   class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
                   required
@@ -354,78 +354,42 @@ definePageMeta({
 const AWN = inject("$awn")
 const config = useRuntimeConfig()
 const { id } = await useRoute().params
-const form = reactive({
+const form = ref({
   id: id,
   tracking_url: "",
   destination_url: "",
-  task_id: "",
+  taskId: "",
   seo_title: "",
   seo_description: "",
   seo_image_url: "",
   facebook_link: "yes",
 })
 
-const { data: user } = await useFetch(
-  `${config.API_BASE_URL}trackingurl/${id}`,
-  { key: id }
-)
+const {fetchTrackUrlOne, updateTrackUrl} = actions;
 
-if (user.value) {
-  form.id = user.value.id
-  form.tracking_url = user.value.tracking_url
-  form.destination_url = user.value.destination_url
-  form.task_id = user.value.task_id
-  form.seo_title = user.value.seo_title
-  form.seo_description = user.value.seo_description
-  form.seo_image_url = user.value.seo_image_url
-  form.facebook_link = user.value.tracking_url.includes("/f/") ? "yes" : "no"
+
+const updateTrackingURL = async () => {
+  updateTrackUrl(id, form.value);
 }
 
 const handleFbLink = (e) => {
-  facebook_link.value = form.facebook_link === "no" ? "yes" : "no"
+  facebook_link.value = form.facebook_link === "no" ? "yes" : "no";
 
-  const lastIndex = form.tracking_url.lastIndexOf("/")
-  const beforeIdentifier = form.tracking_url.substring(0, lastIndex)
-  const afterIdentifier = form.tracking_url.substring(lastIndex + 1)
+  const lastIndex = form.tracking_url.lastIndexOf("/");
+  const beforeIdentifier = form.tracking_url.substring(0, lastIndex);
+  const afterIdentifier = form.tracking_url.substring(lastIndex + 1);
 
   if (facebook_link.value === "yes") {
     if (!form.tracking_url.includes("/f/")) {
-      form.tracking_url = beforeIdentifier + "/f/" + afterIdentifier
+      form.tracking_url = beforeIdentifier + "/f/" + afterIdentifier;
     }
   } else {
     if (form.tracking_url.includes("/f/")) {
-      form.tracking_url = form.tracking_url.replace("/f/", "/")
+      form.tracking_url = form.tracking_url.replace("/f/", "/");
     }
   }
-}
+};
 
-const updateTrackingURL = async () => {
-  const u_data = {
-    id: form.id,
-    tracking_url: form.tracking_url,
-    destination_url: form.destination_url,
-    task_id: form.task_id,
-    seo_title: form.seo_title,
-    seo_description: form.seo_description,
-    seo_image_url: form.seo_image_url,
-  }
-
-  const { data, error } = await useFetch(
-    `${config.API_BASE_URL}trackingurl/update/${id}`,
-    {
-      method: "PUT",
-      params: { id: id },
-      body: u_data,
-    }
-  )
-  if (data.value) {
-    await AWN.success(data.value.message)
-    navigateTo("/tracking-url")
-  }
-  if (error.value) {
-    await AWN.alert(error.value.statusMessage)
-  }
-}
 const copy = async (id) => {
   // Get the text field
   let copyText = document.getElementById(id)
@@ -439,6 +403,11 @@ const copy = async (id) => {
   navigator.clipboard.writeText(copied_url)
   await AWN.success(copied_url + " copied to clipboard!")
 }
+onMounted(async()=>{
+  const res = await fetchTrackUrlOne(id);
+  if(res){
+  form.value = {...res};}
+})
 </script>
 
 <style scoped>

@@ -26,8 +26,8 @@
                 <div class="col-span-3">
                   <input
                     type="text"
-                    v-model="form.unique_identifier"
-                    :disabled="form.unique_identifier"
+                    v-model="form.id"
+                    :disabled="form.id"
                     id="unique_identifier"
                     class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
                     required
@@ -43,8 +43,8 @@
                     <div class="col-span-9">
                       <input
                         type="text"
-                        v-model="form.timestamp"
-                        :disabled="form.timestamp"
+                        v-model="form.createdAt"
+                        :disabled="form.createdAt"
                         id="timestamp"
                         class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
                         required
@@ -89,8 +89,8 @@
                     <div class="col-span-9">
                       <input
                         type="text"
-                        v-model="form.createdBy"
-                        :disabled="form.createdBy"
+                        v-model="form.user.userName"
+                        :disabled="form.user.userName"
                         id="createdBy"
                         class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
                         required
@@ -159,76 +159,37 @@ const AWN = inject("$awn")
 const config = useRuntimeConfig()
 const { id } = await useRoute().params
 
-let timestamp = ref(new Date().toLocaleTimeString())
-let local_data = localStorage.getItem("user")
 
 const clickdatas = ref([])
-const uniqueUrl = ref("")
 const isLoading = ref(false)
 
-setInterval(() => {
-  timestamp.value = new Date().toLocaleTimeString()
-}, 10)
-
-const form = reactive({
-  createdBy: "",
+const form = ref({
+  user: {
+    "userName": "",
+  },
   createdAt: "",
-  timestamp,
-  unique_identifier: "",
   description: "",
   name: "",
   id: ""
 })
 
+const {fetchSinglePlan, updatePlan} = actions;
 
-const { data: account } = await useFetch(
-  `${config.API_BASE_URL}accounts/identifier/${id}`,
-  { key: id }
-)
-
-if (account.value) {
-  form.id = account.value.id
-  form.name = account.value.name
-  form.createdBy = account.value.createdBy;
-  form.unique_identifier = account.value.unique_identifier
-  form.description = account.value.description
-  form.createdAt = account.value.createdAt
-}
 
 const formatDate = (dateString, formatString) => {
   const date = new Date(dateString)
   return moment(date).format(formatString)
 }
 
-const updateAccount = async () => {
-  const u_data = {
-    id: form.id,
-    name: form.name,
-    unique_identifier: form.unique_identifier,
-    description: form.description,
-    createdBy: form.createdBy,
-    timestamp: new Date(),
-  }
-
-  const { data, error } = await useFetch(
-    `${config.API_BASE_URL}accounts/update/${id}`,
-    {
-      method: "PUT",
-      body: u_data,
-    }
-  )
-  if (data.value) {
-    console.log("data value", data.value.message)
-    await AWN.success(data.value.message)
-    navigateTo("/accounts").then(()=>{
-      const router = useRouter()
-      router.go()
-    })
-  }
-  if (error.value) {
-    await AWN.alert(error.value.statusMessage)
-  }
+const updateAccount = () => {
+   updatePlan(id, form.value);
 }
+
+const store = useStore();
+
+watch(()=>store.value?.singlePlan, (newData)=>{
+form.value = {...form.value, ...newData};
+});
 
 
 const setLoading = () => {
@@ -249,7 +210,7 @@ const copy = async (id) => {
   // Alert the copied text
   //alert("Copied the text: " + copyText.value);
 }
-
+onBeforeMount(()=> fetchSinglePlan(id));
 </script>
 
 <script>

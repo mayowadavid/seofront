@@ -154,11 +154,11 @@
                   >
                     <td class="py-3 px-2">
                       <NuxtLink
-                        :to="`/user-groups/${group.unique_identifier}`"
+                        :to="`/user-groups/${group.id}`"
                         title="Edit"
                         class="hover:text-white"
                       >
-                        {{ group?.unique_identifier }}
+                        {{ group?.id }}
                       </NuxtLink>
                     </td>
 
@@ -173,7 +173,7 @@
                     <td class="py-3 px-2">
                       <div class="inline-flex items-center space-x-3">
                         <NuxtLink
-                          :to="`/user-groups/${group.unique_identifier}`"
+                          :to="`/user-groups/${group.id}`"
                           title="Edit"
                         >
                           <span title="Edit" class="hover:text-white"
@@ -241,7 +241,6 @@ const AWN = inject("$awn");
 const { id } = useRoute().query;
 const shouldShowDialog = ref(false);
 const groups = ref([]);
-// const searchdatas = ref([]);
 const groupsTotal = ref(0);
 const searchdatas = ref([]);
 const search = reactive({
@@ -290,155 +289,48 @@ const enterSearch = () => {
   groupsTotal.value = searchdatas.value.length;
 };
 
-const defUser = JSON.parse(localStorage.getItem("user"));
 const activeProject = ref(0);
 const name = ref("");
 const form = reactive({
   id: "",
-  user_id: "",
   name: "",
   description: "",
 });
 
-if (id) {
-  const { data: user } = await useFetch(`${config.API_BASE_URL}groups/${id}`, {
-    key: id,
-  });
+const store = useStore();
 
-  form.id = user.value.id;
-  form.user_id = defUser.userId;
-  form.name = user.value.name;
-  form.description = user.value.description;
+
+
+ searchdatas.value = [...store.value.groups];
+ groups.value = [...store.value.groups];
+
+
+watch(()=> store?.value?.groups, (newData)=>{
+  searchdatas.value = [...newData];
+  groups.value = [...newData];
+})
+
+const setGroupsData = () => {
+
 }
 
-const createUserGroup = async () => {
-  const a_data = {
-    user_id: defUser.userId,
-    name: form.name,
-    description: form.description,
-  };
-
-  if (form.id !== "") {
-    const { data, error } = await useFetch(
-      `${config.API_BASE_URL}groups/update/${form.id}`,
-      {
-        method: "PUT",
-        params: { id: form.id },
-        body: a_data,
-      }
-    );
-    if (data.value) {
-      form.id = "";
-      form.name = "";
-      form.description = "";
-
-      setGroupsData();
-
-      await AWN.success(data.value.message);
-    }
-    if (error.value) {
-      await AWN.alert(error.value.statusMessage);
-    }
-  } else {
-    await useFetch(`${config.API_BASE_URL}groups/create`, {
-      method: "POST",
-      body: a_data,
-    })
-      .then((result) => {
-        if (result.data.value) {
-          form.id = "";
-          form.name = "";
-          form.description = "";
-
-          setGroupsData();
-
-          AWN.success(result.data.value.message);
-          // navigateTo("/user-groups");
-        }
-        if (result.error.value) {
-          console.log("Error:", result);
-          AWN.alert(result.error.value);
-        }
-      })
-      .catch((error) => {
-        console.log("error", error);
-        AWN.alert("Unable to save group.");
-      });
-  }
-};
-
-const setGroupsData = async () => {
-  if (!localStorage.getItem("activeProject")) {
-    let timer = 0;
-    const waitForActiveProject = setInterval(async () => {
-      if (localStorage.getItem("activeProject")) {
-        clearInterval(waitForActiveProject);
-        activeProject.value = parseInt(localStorage.getItem("activeProject"));
-        const { data: data } = await useFetch(
-          `${config.API_BASE_URL}groups/all?ProjectId=${activeProject.value}`
-        );
-
-        searchdatas.value = data.value;
-        groups.value = data.value;
-        groupsTotal.value = data.value?.length;
-      } else {
-        timer += 1;
-        if (timer / 10 > 5) {
-          clearInterval(waitForActiveProject);
-        }
-      }
-    }, 100);
-  } else {
-    activeProject.value = parseInt(localStorage.getItem("activeProject"));
-    const { data: data } = await useFetch(
-      `${config.API_BASE_URL}groups/all?ProjectId=${activeProject.value}`
-    );
-
-    searchdatas.value = data.value;
-    groups.value = data.value;
-    groupsTotal.value = data.value?.length;
-  }
-};
-
 const update = async (id) => {
-  const { data: user } = await useFetch(`${config.API_BASE_URL}groups/${id}`);
-
-  form.id = user.value.id;
-  form.name = user.value.name;
-  form.description = user.value.description;
+  
 };
 
 const destroy = async (id, deletingName) => {
   shouldShowDialog.value = true;
-  localStorage.setItem("sometraffic_delete_group", id);
-  localStorage.setItem("sometraffic_delete_group_name", deletingName);
-  name.value = deletingName;
+ 
 };
 
 const handleDelete = async () => {
   const id = localStorage.getItem("sometraffic_delete_group");
-  const { data, error } = await useFetch(
-    `${config.API_BASE_URL}groups/delete/${id}`,
-    {
-      method: "GET",
-      params: { id: id },
-    }
-  );
-
-  if (data.value) {
-    shouldShowDialog.value = false;
-    await AWN.success(data.value.message);
-  }
-  if (error.value) {
-    shouldShowDialog.value = false;
-    await AWN.alert(error.value.statusMessage);
-  }
+  
 
   localStorage.removeItem("sometraffic_delete_group");
-  await setGroupsData();
 };
 
-onBeforeMount(setGroupsData);
+
 </script>
 <style scoped>
 #users_groups h1,

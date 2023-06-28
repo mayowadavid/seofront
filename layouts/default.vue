@@ -42,12 +42,12 @@
                 {{ user.userName }}
               </p>
               <span class="flex justify-between py-1">
-                <span class="text-xs text-slate-600">{{ user.userType }}</span>
+                <span class="text-xs text-slate-600">{{ user.role }}</span>
                 <!-- <span class="text-xs text-slate-600 pl-3">{{ user.currentTime }}</span> -->
               </span>
             </div>
           </NuxtLink>
-          <div v-if="user.userType === 'Administrator' || user.userType === 'administrator'" class="flex text-white gap-x-4 items-center">
+          <div v-if="user.role === 'Administrator' || user.role === 'administrator'" class="flex text-white gap-x-4 items-center">
               <h2 class="text-slate-300 text-md"><TimeDisplay /></h2>
                           <NuxtLink
             class="hover:bg-white/10  transition w-fit duration-150 ease-linear rounded-lg py-3 px-2 group"
@@ -77,13 +77,13 @@
                <span class="text-center self-center text-xl">{{joinedGroups}}</span>
             </div>
             <div class="flex text-white">
-              <p v-if="user.userType === 'Administrator' || user.userType === 'administrator'" class="font-medium text-lg text-slate-200">Account</p>
+              <p v-if="user.role === 'Administrator' || user.role === 'administrator'" class="font-medium text-lg text-slate-200">Account</p>
             </div>
-            <div v-if="user.userType === 'Administrator' || user.userType === 'administrator'" class="flex mt-4">
+            <div v-if="user.role === 'Administrator' || user.role === 'administrator'" class="flex mt-4">
                   <div class="basis-full  ">
                     <div id="account-selector" class="relative">
               <div @click="showAccountsList = !showAccountsList" class="rounded-md cursor-pointer relative flex bg-[#bcbcbc] p-3  text-black">
-                <button class="font-medium" type="button">{{ accounts.length ? accounts.find(account => account.id == activeAccount) ? accounts.find(account => account.id == activeAccount).name : 'select account' : '' }}</button>
+                <button class="font-medium" type="button">{{ accounts.length > 0 ? accounts[selectedAccountIndex].name : 'select account' }}</button>
                 <span :class="{ 'rotate-180': showAccountsList }" class="absolute right-3 top-1/2 -translate-y-1"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" width="24px" height="14px" viewBox="0 0 960 560" enable-background="new 0 0 960 560" xml:space="preserve">
   <g id="Rounded_Rectangle_33_copy_4_1_">
   	<path d="M480,344.181L268.869,131.889c-15.756-15.859-41.3-15.859-57.054,0c-15.754,15.857-15.754,41.57,0,57.431l237.632,238.937   c8.395,8.451,19.562,12.254,30.553,11.698c10.993,0.556,22.159-3.247,30.555-11.698l237.631-238.937   c15.756-15.86,15.756-41.571,0-57.431s-41.299-15.859-57.051,0L480,344.181z"/>
@@ -91,7 +91,7 @@
                 </svg></span>
               </div>
               <div v-show="showAccountsList" class="absolute border w-full shadow-lg z-10 overflow-y-auto max-h-96 top-12  flex flex-col  bg-[#bcbcbc] rounded-md text-black">
-                <div @click="setAccount(account.id)" class="font-medium hover:bg-slate-300 transition-colors py-4 cursor-pointer flex flex-col gap-y-2" v-for="(account) in accounts" :key="account.id">
+                <div @click="handlePlan(account.id)" class="font-medium hover:bg-slate-300 transition-colors py-4 cursor-pointer flex flex-col gap-y-2" v-for="(account) in accounts" :key="account.id">
                   <button type="button">{{ account.name }}</button>
                 </div>
                 <hr>
@@ -101,12 +101,12 @@
             </div>
             </div>
                 </div>
-                <div v-if="user.userType === 'Administrator' || user.userType === 'administrator'" class="flex my-4 text-white">
+                <div v-if="user.role === 'Administrator'" class="flex my-4 text-white">
                   <p class="font-medium text-lg text-slate-200">Project</p>
                 </div>
-                <div v-if="user.userType === 'Administrator' || user.userType === 'administrator'" id="project-selector" class="relative mb-8">
-            <div @click="projects.length ? showProjectsList = !showProjectsList : navigateTo('/projects/add')" class="rounded-md cursor-pointer relative flex bg-[#bcbcbc] p-3 text-black">
-              <button class="font-medium">{{projects.length ? projects.find(project => project.id === parseInt(activeProject)).name : 'Create first project'}}</button>
+                <div v-if="user.role === 'Administrator' || user.role === 'administrator'" id="project-selector" class="relative mb-8">
+            <div @click="projects.length > 0 ? showProjectsList = !showProjectsList : navigateTo('/projects/add')" class="rounded-md cursor-pointer relative flex bg-[#bcbcbc] p-3 text-black">
+              <button class="font-medium">{{projects.length > 0 ? projects[selectedProjectIndex].name : 'Create first project'}}</button>
               <span v-if="projects.length" :class="{'rotate-180':showProjectsList}" class="absolute right-3 top-1/2 -translate-y-1"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" width="24px" height="14px" viewBox="0 0 960 560" enable-background="new 0 0 960 560" xml:space="preserve">
                 <g id="Rounded_Rectangle_33_copy_4_1_">
                   <path d="M480,344.181L268.869,131.889c-15.756-15.859-41.3-15.859-57.054,0c-15.754,15.857-15.754,41.57,0,57.431l237.632,238.937   c8.395,8.451,19.562,12.254,30.553,11.698c10.993,0.556,22.159-3.247,30.555-11.698l237.631-238.937   c15.756-15.86,15.756-41.571,0-57.431s-41.299-15.859-57.051,0L480,344.181z"/>
@@ -114,8 +114,8 @@
 </svg></span>
             </div>
             <div v-show="showProjectsList" class="bg-[#bcbcbc] absolute w-full top-12  flex flex-col rounded-md text-black border">
-              <div @click="setActiveProject(project.id)" class="font-medium hover:bg-slate-300 transition-colors py-4 cursor-pointer flex flex-col gap-y-2" v-for="(project) in projects" :key="project.id">
-                <button>{{project.name}}</button>
+              <div @click="handleProject(project.id)" class="font-medium hover:bg-slate-300 transition-colors py-4 cursor-pointer flex flex-col gap-y-2" v-for="(project) in projects" :key="project.id">
+                <button>{{project?.name}}</button>
               </div>
               <hr>
               <button class="font-medium text-center cursor-pointer hover:bg-slate-300 transition-colors py-4" @click="navigateTo('/projects/add'); showProjectsList = false;">+ Add a project</button>
@@ -229,7 +229,7 @@
             </div>
           </NuxtLink>
           <NuxtLink
-          v-if="user.userType === 'Administrator'"
+          v-if="user.role === 'Administrator'"
             class="hover:bg-white/10 hover:text-black hover:border hover:border-white hover:border-solid transition duration-150 ease-linear rounded-lg py-3 px-2 group"
             to="/users"
           >
@@ -355,126 +355,86 @@ const shouldShowDialog = ref(false);
 const showAccountsList = ref(false);
 const showProjectsList = ref(false);
 const joinedGroups = ref(0)
-const user = reactive({
+let user = reactive({
   userName: "",
-  userType: "",
+  role: "",
   currentTime: "",
 });
+let selectedAccountIndex = ref(0);
+let selectedProjectIndex = ref(0);
 const db_name = moment(new Date()).format("YYYY-MM-DD-HH_mm");
 const full_db_name = `sometraffic-${db_name}`;
-const accounts = ref([])
+let accounts = reactive([])
+let projects = reactive([]);
+const store = useStore();
+const data = actions;
+const {
+  fetchPlan, 
+  fetchProject, 
+  fetchTaskByProject, 
+  fetchGroupsByProject, 
+  fetchCategories,
+  fetchInformationByProject
+  } = data;
 
-const projects = ref([])
-const activeAccount = ref(
-  localStorage.getItem("activeAccount")
-)
-const activeAccountData = ref(
-  JSON.parse(localStorage.getItem("activeAccountData"))
-)
-const activeProject = ref(localStorage.getItem('activeProject'))
-
-
-const incrementJoinedGroups = async() => {
-  await useFetch(
-    `${config.API_BASE_URL}joined-groups/create`,
-    {
-    method: "POST",
-  }
-  )
-  joinedGroups.value += 1
-
+const handlePlan = (d) => {
+  const index = store?.value?.plan?.findIndex(({id})=> id == d);
+  selectedAccountIndex.value = index;
+ fetchProject(d);
+ showAccountsList.value = !showAccountsList.value;
 }
 
-const setShow = async () => {
-  if (typeof window !== "undefined") {
-    if (user !== null && user !== undefined) {
-      let local_data = localStorage.getItem("user");
-      user.userName = JSON.parse(local_data).userName;
-      user.userType = JSON.parse(local_data).userType;
-      // time();
-      // console.log('users value', user.value.userName);
-    }
-  }
-};
-
-const setProjects = async () => {
-  const { data: data } = await useFetch(
-    `${config.API_BASE_URL}projects/all?AccountId=${activeAccount.value}`
-  )
-  projects.value = data.value
-  if(projects.value.length === 0) return navigateTo('/projects/add')
-  activeProject.value = localStorage.getItem('activeProject') ? parseInt(localStorage.getItem('activeProject')) : projects.value[0].id
-  localStorage.setItem('activeProject', activeProject.value)
+const handleProject = (projectId) => {
+  const index = store?.value?.projects?.findIndex(({id})=> id == projectId);
+  selectedProjectIndex.value = index;
+  SET_PROJECT_ID(projectId);
+Promise.all([
+            fetchTaskByProject(projectId), 
+            fetchGroupsByProject(projectId), 
+            fetchCategories(projectId), 
+            fetchInformationByProject(projectId)
+            ]);
+    showProjectsList.value = !showProjectsList.value;
 }
 
-const setActiveProject = (index) => {
-  showProjectsList.value = false;
-  activeProject.value = index
-  localStorage.setItem('activeProject', JSON.stringify(activeProject.value))
-  const router = useRouter()
-  router.go()
-}
-
-const setJoinedGroup = async () => {
-  const { data: data } = await useFetch(
-    `${config.API_BASE_URL}joined-groups/all`
-  )
-  joinedGroups.value = data.value.length
-}
-
-const setAccounts = async () => {
-  const { data: data } = await useFetch(`${config.API_BASE_URL}accounts/all`)
-  accounts.value = data.value
-}
-
-const setAccount = (id) => {
-  showAccountsList.value = false;
-  const activeAccount = accounts.value.find(account => account.id === parseInt(id)) 
-  localStorage.removeItem('activeProject')
-  localStorage.setItem('activeAccount', activeAccount.id)
-  localStorage.setItem('activeAccountData', JSON.stringify(activeAccount))
-  const router = useRouter()
-  router.go()
-}
-
-
-onBeforeMount(setJoinedGroup);
-onBeforeMount(setProjects);
-onBeforeMount(setShow);
-onBeforeMount(setAccounts)
-
-onMounted(() => {
-  document.addEventListener("click", function(evt) {
-        let projectEl = document.getElementById('project-selector'),
-          targetEl = evt.target; // clicked element      
-        do {
-          if(targetEl == projectEl) {
-            // This is a click inside, does nothing, just return.
-            return;
-          }
-          // Go up the DOM
-          targetEl = targetEl.parentNode;
-        } while (targetEl);
-        // This is a click outside.
-        showProjectsList.value = false
-      });
-      document.addEventListener("click", function(evt) {
-        let accountEl = document.getElementById('account-selector'),
-          targetEl = evt.target; // clicked element      
-        do {
-          if(targetEl == accountEl) {
-            // This is a click inside, does nothing, just return.
-            return;
-          }
-          // Go up the DOM
-          targetEl = targetEl.parentNode;
-        } while (targetEl);
-        // This is a click outside.
-        showAccountsList.value = false
-      });
-  setShow()
+onBeforeMount(() => {
+  const data = useStore();
+  user = {...user, ...data?.value?.user};
+  accounts = [...data?.value?.plan];
+  projects = [...data?.value?.projects];
+  //projects.value?.length > 0 && (showProjectsList.value = true);
+  //console.log('data', [...projects]);
+  // document.addEventListener("click", function(evt) {
+  //       let projectEl = document.getElementById('project-selector'),
+  //         targetEl = evt.target; // clicked element      
+  //       do {
+  //         if(targetEl == projectEl) {
+  //           // This is a click inside, does nothing, just return.
+  //           return;
+  //         }
+  //         // Go up the DOM
+  //         targetEl = targetEl.parentNode;
+  //       } while (targetEl);
+  //       // This is a click outside.
+  //       showProjectsList.value = false
+  //     });
+  //     document.addEventListener("click", function(evt) {
+  //       let accountEl = document.getElementById('account-selector'),
+  //         targetEl = evt.target; // clicked element      
+  //       do {
+  //         if(targetEl == accountEl) {
+  //           // This is a click inside, does nothing, just return.
+  //           return;
+  //         }
+  //         // Go up the DOM
+  //         targetEl = targetEl.parentNode;
+  //       } while (targetEl);
+  //       // This is a click outside.
+  //       showAccountsList.value = false
+  //     });
+  // //setShow()
   // const route = useRoute()
-  // if((user.userType !== 'Administrator' || user.userType !== 'administrator') && route.path.includes('admin-settings')){
+  // if((user.role !== 'Administrator' || user.role !== 'administrator') && route.path.includes('admin-settings')){
   //   const router = useRouter()
   //   router.push('/dashboard')
   // }
@@ -489,29 +449,29 @@ onMounted(() => {
 //     user.currentTime = time;
 // }
 
-const downloadDb = () => {
-  const link = document.createElement("a");
-  link.href = `${config.API_BASE_URL}files/sometraffic.sql`;
-  link.download = full_db_name;
-  link.target = "_blank";
-  link.click();
-};
+// const downloadDb = () => {
+//   // const link = document.createElement("a");
+//   // link.href = `${config.API_BASE_URL}files/sometraffic.sql`;
+//   // link.download = full_db_name;
+//   // link.target = "_blank";
+//   // link.click();
+// };
 
-const logout = async () => {
-  // let x = confirm('Are you sure!')
-  // if(x){
-  //     localStorage.clear();
-  //     navigateTo('/login');
-  // }
+// const logout = async () => {
+//   // let x = confirm('Are you sure!')
+//   // if(x){
+//   //     localStorage.clear();
+//   //     navigateTo('/login');
+//   // }
 
-  localStorage.clear();
-  navigateTo("/");
-  await AWN.success("You Logout From System!");
-};
+//   // localStorage.clear();
+//   // navigateTo("/");
+//   // await AWN.success("You Logout From System!");
+// };
 
-const handleLogout = async () => {
-  shouldShowDialog.value = true;
-};
+// const handleLogout = async () => {
+//   //shouldShowDialog.value = true;
+// };
 </script>
 
 <style scoped>

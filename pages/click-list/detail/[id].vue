@@ -89,7 +89,7 @@
                 <div class="col-span-4 px-1.5">
                   <input
                     type="text"
-                    :value="click_datas[step]?.task_id"
+                    :value="click_datas[step]?.id"
                     :disabled="true"
                     id="task_id"
                     class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
@@ -108,7 +108,7 @@
                   <input
                     type="text"
                     :value="
-                      formatDate(click_datas[step]?.timestamp, 'YYYY-MM-DD')
+                      formatDate(click_datas[step]?.createdAt, 'YYYY-MM-DD')
                     "
                     :disabled="true"
                     id="date"
@@ -127,7 +127,7 @@
                 <div class="basis-1/3 px-1.5">
                   <input
                     type="text"
-                    :value="formatDate(click_datas[step]?.timestamp, 'H:m')"
+                    :value="formatDate(click_datas[step]?.createdAt, 'H:m')"
                     :disabled="true"
                     id="time"
                     class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
@@ -551,12 +551,13 @@ const formatDate = (dateString, formatString) => {
   const date = new Date(dateString);
   return moment(date).format(formatString);
 };
+
+const {fetchClicklistByTrackUrl, deleteTrackUrClick} = actions;
 // fetch the click
 const setClickDatas = async () => {
-  const { data: clickdatas } = await useFetch(
-    `${config.API_BASE_URL}clickdata/bytaskid/${id}`
-  );
-  click_datas.value = clickdatas.value;
+ const res = await fetchClicklistByTrackUrl(id);
+ console.log('res', res);
+  click_datas.value = [...res];
 };
 
 const next = async () => {
@@ -570,31 +571,8 @@ const prev = async () => {
   }
 };
 
-const destroyClickData = async (id) => {
-  let onOk = async () => {
-    const { data, error } = await useFetch(
-      `${config.API_BASE_URL}clickdata/delete/${id}`,
-      {
-        method: "GET",
-        params: { id: id },
-      }
-    );
-    if (data.value) {
-      await AWN.success(data.value.message);
-    }
-    if (error.value) {
-      await AWN.alert(error.value.statusMessage);
-    }
-    click_datas.value = click_datas?._value?.filter((row) => row?.id != id);
-  };
-  let onCancel = () => {
-    AWN.info("You pressed Cancel");
-  };
-  AWN.confirm("Are you sure?", onOk, onCancel, {
-    labels: {
-      confirm: "You can undo it!",
-    },
-  });
+const destroyClickData = (id) => {
+    deleteTrackUrClick(id);
 };
 onBeforeMount(setClickDatas);
 </script>

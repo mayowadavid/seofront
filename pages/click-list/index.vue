@@ -76,23 +76,23 @@
             >
               <td class="py-3 px-2">
                 <NuxtLink
-                  :to="`/tracking-url/${clickdata?.Redirect?.id}`"
+                  :to="`/tracking-url/${clickdata?.trackingUrl?.id}`"
                   title="Edit"
                   class="hover:text-white"
-                  >{{ clickdata?.Redirect?.tracking_url.slice(-7) }}</NuxtLink
+                  >{{ clickdata?.trackingUrl?.id }}</NuxtLink
                 >
               </td>
               <td class="py-3 px-2">
                 <NuxtLink
-                  :to="`/click-list/detail/${clickdata?.task_id}`"
+                  :to="`/click-list/detail/${clickdata?.trackingUrl?.id}`"
                   title="Edit"
                   class="hover:text-white"
-                  >{{ clickdata?.task_id }}</NuxtLink
+                  >{{ clickdata?.id }}</NuxtLink
                 >
               </td>
               <td class="py-3 px-2">{{ clickdata?.device }}</td>
               <td class="py-3 px-2">
-                {{ formatDate(clickdata?.timestamp, "YYYY-MM-DD H:m") }}
+                {{ formatDate(clickdata?.createdAt, "YYYY-MM-DD H:m") }}
               </td>
               <td class="py-3 px-2">{{ clickdata?.country }}</td>
               <td class="py-3 px-2">{{ clickdata?.city }}</td>
@@ -212,10 +212,13 @@ const formatDate = (dateString, formatString) => {
   return moment(date).format(formatString);
 };
 
+const {fetchClickList} = actions;
+
 const setClickDatas = async () => {
-  const { data: data } = await useFetch(`${config.API_BASE_URL}clickdata/all`);
-  clickdatas.value = data.value;
-  searchdatas.value = data.value;
+  const res = await fetchClickList();
+  console.log(res);
+  clickdatas.value = [...res];
+  searchdatas.value = [...res];
 };
 
 onBeforeMount(setClickDatas);

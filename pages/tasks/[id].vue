@@ -597,7 +597,7 @@
                   <div class="basis-1/3 px-1.5">
                     <input
                       type="text"
-                      v-model="categoryItem.username"
+                      v-model="categoryItem.user.userName"
                       disabled
                       id="username"
                       class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
@@ -608,7 +608,7 @@
                   <div class="basis-1/3 px-1.5">
                     <input
                       type="text"
-                      v-model="categoryItem.timestamp"
+                      v-model="categoryItem.createdAt"
                       disabled
                       id="timestamp"
                       class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
@@ -626,7 +626,7 @@
                       <div class="basis-3/4">
                         <input
                           type="text"
-                          v-model="categoryItem.unique_identifier"
+                          v-model="categoryItem.id"
                           disabled
                           id="item_id"
                           class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
@@ -666,8 +666,8 @@
               <div class="basis-1/3 px-1.5">
                 <input
                   type="text"
-                  v-model="form.username"
-                  :disabled="form.username"
+                  v-model="form.user.userName"
+                  :disabled="form.user.userName"
                   id="username"
                   class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
                   required
@@ -677,8 +677,8 @@
               <div class="basis-1/3 px-1.5">
                 <input
                   type="text"
-                  v-model="form.timestamp"
-                  :disabled="form.timestamp"
+                  v-model="form.createdAt"
+                  :disabled="form.createdAt"
                   id="timestamp"
                   class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
                   required
@@ -695,8 +695,8 @@
                   <div class="basis-3/4">
                     <input
                       type="text"
-                      v-model="form.task_id"
-                      :disabled="form.task_id"
+                      v-model="form.id"
+                      :disabled="form.id"
                       id="item_id"
                       class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
                       required
@@ -851,11 +851,7 @@
                         id="status"
                         class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
                         required
-                        disabled
                       >
-                        <option :value="null" disabled>
-                          Unscheduled, planned or history
-                        </option>
                         <option value="unscheduled">Unscheduled</option>
                         <option value="planned">Planned</option>
                         <option value="history">History</option>
@@ -1116,7 +1112,7 @@
 
           <div class="px-4 py-3 text-right sm:px-6 w-full sm:w-full">
             <button
-              @click="(event) => handleMarkDone(form.task_id)"
+              @click="(event) => handleMarkDone(form.id)"
               type="button"
               class="bg-green-500 inline-flex justify-center rounded-md border border-transparent py-2 px-4 text-sm font-medium text-black shadow-sm hover:bg-green-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 mr-2"
             >
@@ -1165,33 +1161,37 @@ const AWN = inject("$awn");
 
 const urlParams = new URLSearchParams(window.location.search);
 
-const categoryItem = ref(null);
+const categoryItem = ref({
+  id: "",
+  information: "",
+  category: "",
+  item_title: "",
+  group: "",
+  priority: "",
+  visibility: null,
+  url_1_link: "",
+  url_2_txt: "",
+  url_2_link: "",
+  plan_frequency: "",
+  automatic_status: null,
+  createdAt: "",
+  project: "",
+  user: {
+    "userName": ''
+  }
+});
 const shouldShowDialog = ref(false);
 
 const config = useRuntimeConfig();
 const { id } = await useRoute().params;
 const _id = urlParams.get("id");
 
-let timestamp = new Date().toLocaleTimeString();
 
-setInterval(() => {
-  timestamp = new Date().toLocaleTimeString();
-}, 10);
-
-const { data: catItem } = await useFetch(
-  `${config.API_BASE_URL}category-items/id/${_id}`,
-  { key: _id }
-);
-
-if (catItem.value) {
-  categoryItem.value = catItem.value;
-}
-
-const form = reactive({
+const form = ref({
   id: "",
-  username: "",
-  timestamp: "",
-  task_id: "",
+  user: {
+    "userName": "",
+  },
   category_item_id: "",
   information: "",
   title: "",
@@ -1199,7 +1199,7 @@ const form = reactive({
   email_notification: "",
   status: "",
   due_date: "",
-  due_time: "",
+  due_time: "21:00",
   url_1_txt: "",
   url_1_link: "",
   url_2_txt: "",
@@ -1207,126 +1207,29 @@ const form = reactive({
   createdAt: "",
 });
 
-const { data: user } = await useFetch(
-  `${config.API_BASE_URL}tasks/identifier/${id}`,
-  { key: id }
-);
-
-console.log("categoryItem & user: ", categoryItem, user);
-
-if (user.value) {
-  form.id = user.value.id;
-  form.category_item_id = user.value.category_item_id;
-  form.username = user.value.username;
-  form.timestamp = user.value.status;
-  form.task_id = user.value.task_id;
-  form.information = user.value.information;
-  form.title = user.value.title;
-
-  if (user.value.due_date_time) {
-    form.due_date = new Date(user.value.due_date_time)
-      .toISOString()
-      .substring(0, 10);
-    form.due_time = new Date(user.value.due_date_time)
-      .toISOString()
-      .substring(11, 16);
-  }
-
-  form.priority = user.value.priority;
-  form.email_notification = user.value.email_notification == "1" ? "on" : "off";
-  form.status = user.value.status;
-
-  form.url_1_txt = user.value.url_1_txt;
-  form.url_1_link = user.value.url_1_link;
-  form.url_2_txt = user.value.url_2_txt;
-  form.url_2_link = user.value.url_2_link;
-  form.createdAt = user.value.createdAt;
-}
-
 const formatDate = (dateString, formatString) => {
   const date = new Date(dateString);
   return moment(date).format(formatString);
 };
-
-const updateTask = async () => {
-  let due_date_time = "";
-  if (form.due_date) {
-    status = "planned";
-    if (form.due_time) {
-      due_date_time = new Date(form.due_date + " " + form.due_time);
-    } else {
-      due_date_time = new Date(form.due_date);
-    }
-  }
-
-  const a_data = {
-    id: form.id,
-    category_item_id: form.category_item_id,
-    username: form.username,
-    timestamp: new Date(),
-    task_id: form.task_id,
-    information: form.information,
-    title: form.title,
-    due_date_time,
-    priority: form.priority,
-    email_notification: form.email_notification === "on" ? true : false,
-    status: status,
-    url_1_txt: form.url_1_txt,
-    url_1_link: form.url_1_link,
-    url_2_txt: form.url_2_txt,
-    url_2_link: form.url_2_link,
-  };
-
-  await useFetch(`${config.API_BASE_URL}tasks/update/${id}`, {
-    method: "PUT",
-    body: a_data,
-  })
-    .then((result) => {
-      if (result.data.value) {
-        AWN.success(result.data.value.message);
-        navigateTo("/tasks");
-      }
-      if (result.error.value) {
-        console.log("error value1", result.error.value.data.message);
-        AWN.alert(result.error.value.data.message);
-      }
-    })
-    .catch((error) => {
-      console.log("error value", error);
-      AWN.alert("Validation error");
-    });
-};
+const { updateTasks } = actions;
+const updateTask = () => {
+  updateTasks(id, form.value);
+}
 
 const handleMarkDone = async (id) => {
   shouldShowDialog.value = true;
-  localStorage.setItem("sometraffic_mark_done", id);
+
 };
 
 const markDone = async () => {
-  const id = localStorage.getItem("sometraffic_mark_done");
-  const { data, error } = await useFetch(
-    `${config.API_BASE_URL}tasks/update/${id}`,
-    {
-      method: "PUT",
-      body: {
-        id: form.id,
-        category_item_id: form.category_item_id,
-        username: form.username,
-        timestamp: new Date(),
-        task_id: form.task_id,
-        status: "history",
-        email_notification: false,
-      },
-    }
-  );
 
-  if (data.value) {
-    await AWN.success("Task marked as done and moved to history.");
-    navigateTo("/tasks");
-  }
-  if (error.value) {
-    await AWN.alert(error.value.statusMessage);
-  }
+  // if (data.value) {
+  //   await AWN.success("Task marked as done and moved to history.");
+  //   navigateTo("/tasks");
+  // }
+  // if (error.value) {
+  //   await AWN.alert(error.value.statusMessage);
+  // }
 };
 
 const copy = async (id) => {
@@ -1343,4 +1246,20 @@ const copy = async (id) => {
   // Alert the copied text
   //alert("Copied the text: " + copyText.value);
 };
+
+const store = useStore();
+watch(()=>store.value?.singleCategory, (newData)=>{
+categoryItem.value = {...categoryItem.value, ...newData};
+});
+
+form.value= {...form.value, ...store.value.singleTask};
+
+watch(()=>store.value?.singleTask, (newData)=>{
+form.value = {...form.value, ...newData};
+});
+
+onMounted(()=>{
+const {fetchOneCategories, fetchTask} = actions;
+Promise.all([fetchOneCategories(_id), fetchTask(id)]);
+});
 </script>

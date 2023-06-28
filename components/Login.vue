@@ -71,68 +71,36 @@
 </template>
 
 <script setup>
+
 const Swal = inject("$swal");
 const AWN = inject("$awn");
-
 const config = useRuntimeConfig();
 const hasError = ref(null);
 const errorMessage = ref(null);
-const accounts = ref([]);
-const account = ref({});
 const form = reactive({
   email: "",
   password: "",
 });
+console.log(getters);
+const auth = actions;
+//console.log(getters);
 const loginForm = async () => {
   let login_data = { email: form.email, password: form.password };
-  const { data, error } = await useFetch(`${config.API_BASE_URL}auth/signin`, {
-    key: login_data.email,
-    method: "POST",
-    body: login_data,
-  });
-  if (data.value) {
-    hasError.value = false;
-    localStorage.setItem("user", JSON.stringify(data.value));
-    localStorage.setItem("authToken", data.value.accessToken);
-    if(data.value.userType === 'Administrator'){
-                console.log('admin', accounts.value);
-                await setAccounts()
-                accounts.value[0].id
-                localStorage.setItem("activeAccount", accounts.value[0].id)
-                localStorage.setItem("activeAccountData", JSON.stringify(accounts.value[0]))
-              }else {
-                console.log('not admin');
-                console.log(accounts.value);
-                localStorage.setItem("activeAccount", data.value.AccountId)
-                const activeAccountData = await getAccount(data.value.AccountId)
-
-                localStorage.setItem("activeAccountData", JSON.stringify(account.value))
-            }
-    navigateTo("/dashboard");
-    // console.log('localStorage user', user);
-  }
-  if (error.value) {
-    hasError.value = true;
-    let err_code = error.value.statusCode;
-    errorMessage.value =
-      err_code == 404
-        ? "You didn't have any account"
-        : err_code == 401
-        ? "Email or Password incorrect!"
-        : error.value.statusMessage;
-    // AWN.alert(errorMessage.value);
-    console.log("response error", error.value.statusMessage);
-  }
+  auth.login(login_data);
+  //auth.login(login_data);
+  // $store.dispatch('auth/login', data);
+  // if (data.value) {
+  //   console.log(data.value);
+  //   hasError.value = false;
+  //   localStorage.setItem("token", JSON.stringify(data.value.refreshToken));
+  //   localStorage.setItem('role', data.value.role);
+  //   navigateTo("/dashboard");
+  // }
+  // if (error.value) {
+  //   hasError.value = true;
+  //   errorMessage.value = error.value.data.message;
+  // }
 };
-const setAccounts = async () => {
-  const { data: data } = await useFetch(`${config.API_BASE_URL}accounts/all`)
-  accounts.value = data.value
-}
-
-const getAccount = async (id) => {
-  const { data: data } = await useFetch(`${config.API_BASE_URL}accounts/${id}`)
-  account.value = data.value
-}
 
 </script>
 

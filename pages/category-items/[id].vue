@@ -39,24 +39,6 @@
                 <div
                   class="col-span-3 flex items-center text-sm font-medium text-gray-700"
                 >
-                  Created
-                </div>
-                <div class="col-span-3">
-                  <input
-                    type="text"
-                    :value="formatDate(form.createdAt, 'YYYY-MM-DD HH:mm')"
-                    class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
-                    disabled
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div class="col-span-12">
-              <div class="grid grid-cols-12">
-                <div
-                  class="col-span-3 flex items-center text-sm font-medium text-gray-700"
-                >
                   Item title
                 </div>
                 <div class="col-span-9">
@@ -269,7 +251,7 @@
   <div class="basis-3/4">
     <div id="form-project-selector" class="relative text-sm">
     <div @click="showProjectsList = !showProjectsList" class="rounded-md cursor-pointer relative flex bg-[#bcbcbc] p-3 w-3/5 text-black">
-      <button class="font-medium" type="button">{{ projects.length ? projects.find(project => project.id === form.project) ? projects.find(project => project.id === form.project).name : 'Select project' : 'Select project' }}</button>
+      <button class="font-medium" type="button">{{ form.project ? form.project?.name  : 'Select project' }}</button>
       <span :class="{ 'rotate-180': showProjectsList }" class="absolute right-3 top-1/2 -translate-y-1"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" width="24px" height="14px" viewBox="0 0 960 560" enable-background="new 0 0 960 560" xml:space="preserve">
 <g id="Rounded_Rectangle_33_copy_4_1_">
 
@@ -661,50 +643,6 @@
                 </div>
               </div>
             </div>
-
-            <div class="flex flex-row mt-4">
-              <div class="basis-1/3 px-1.5">
-                <input
-                  type="text"
-                  v-model="form.username"
-                  :disabled="form.username"
-                  id="username"
-                  class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
-                  required
-                />
-              </div>
-
-              <div class="basis-1/3 px-1.5">
-                <input
-                  type="text"
-                  v-model="form.timestamp"
-                  :disabled="form.timestamp"
-                  id="timestamp"
-                  class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
-                  required
-                />
-              </div>
-
-              <div class="basis-1/3 px-1.5">
-                <div class="flex flex-row">
-                  <div
-                    class="basis-1/4 flex items-center text-sm font-medium text-gray-700"
-                  >
-                    Item ID
-                  </div>
-                  <div class="basis-3/4">
-                    <input
-                      type="text"
-                      v-model="form.item_id"
-                      :disabled="form.item_id"
-                      id="item_id"
-                      class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
-                      required
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
 
           <div class="px-4 py-3 text-right sm:px-6 w-full sm:w-full">
@@ -782,21 +720,21 @@
           </div>
 
           <div class="mt-4">
-            <div v-show="tab === 1">
-              <TasksAll :limit="5" :showSearch="false" :itemid="form.id" />
+            <div v-if="form.task.length > 0" v-show="tab === 1">
+              <TasksAll :limit="5" :showSearch="false" :task="form.task" />
             </div>
             <div v-show="tab === 2">
               <TasksUnscheduled
                 :limit="5"
                 :showSearch="false"
-                :itemid="form.id"
+                :task="form.task"
               />
             </div>
             <div v-show="tab === 3">
-              <TasksPlanned :limit="5" :showSearch="false" :itemid="form.id" />
+              <TasksPlanned :limit="5" :showSearch="false" :task="form.task" />
             </div>
             <div v-show="tab === 4">
-              <TasksHistory :limit="5" :showSearch="false" :itemid="form.id" />
+              <TasksHistory :limit="5" :showSearch="false" :task="form.task" />
             </div>
           </div>
         </div>
@@ -804,7 +742,7 @@
 
       <div id="information_items" class="shadow sm:rounded-md my-4">
         <div class="px-4 py-5 sm:p-6">
-          <InformationItems :limit="5" :itemid="form.id" />
+          <InformationItems v-if="form.informationItem.length > 0" :limit="5" :informationItem="form.informationItem" />
         </div>
       </div>
     </div>
@@ -822,7 +760,6 @@ const AWN = inject("$awn");
 const config = useRuntimeConfig();
 const { id } = await useRoute().params;
 
-let timestamp = new Date().toLocaleTimeString();
 let local_data = localStorage.getItem("user");
 let defaultProject = parseInt(localStorage.getItem("activeProject"));
 const projects = ref([]);
@@ -845,15 +782,8 @@ const setProject = async (id) => {
 }
 
 
-setInterval(() => {
-  timestamp = new Date().toLocaleTimeString();
-}, 10);
-
-const form = reactive({
+const form = ref({
   id: "",
-  username: "",
-  timestamp,
-  item_id: "",
   information: "",
   category: "",
   item_title: "",
@@ -866,74 +796,33 @@ const form = reactive({
   plan_frequency: "",
   automatic_status: null,
   createdAt: "",
-  project: defaultProject ? defaultProject : null
+  project: "",
+  task: [],
+  informationItem: [],
+});
+const store = useStore();
+watch(()=>store.value?.singleCategory, (newData)=>{
+form.value = {...form.value, ...newData};
 });
 
-const { data: user } = await useFetch(
-  `${config.API_BASE_URL}category-items/identifier/${id}`,
-  { key: id }
-);
+projects.value = [...store.value?.projects];
+groups.value = [...store.value?.groups];
 
-if (user.value) {
-  form.id = user.value.id;
-  form.username = user.value.username;
-  form.timestamp = new Date(user.value.timestamp).toLocaleTimeString();
-  form.item_id = user.value.unique_identifier;
-  form.information = user.value.information;
-  form.category = user.value.category;
-  form.item_title = user.value.item_title;
 
-  form.group = user.value.cat_group;
-  form.priority = user.value.priority;
-  form.visibility = user.value.visibility;
-  form.url_1_link = user.value.url_1_link;
-  form.url_2_txt = user.value.url_2_txt;
-  form.url_2_link = user.value.url_2_link;
-  form.plan_frequency = user.value.plan_frequency;
-  form.automatic_status = user.value.automatic_status;
-  form.createdAt = user.value.createdAt;
-}
+onMounted(async ()=>{
+const {fetchOneCategories} = actions;
+fetchOneCategories(id);
+});
+
+
 
 const formatDate = (dateString, formatString) => {
   const date = new Date(dateString);
   return moment(date).format(formatString);
 };
-
-const updateCategoryItem = async () => {
-  const u_data = {
-    id: form.id,
-    username: form.username,
-    timestamp: new Date(),
-    item_title: form.item_title,
-    unique_identifier: form.item_id,
-    information: form.information,
-    category: form.category,
-    priority: form.priority,
-    cat_group: form.group,
-    visibility: form.visibility,
-    url_1_txt: form.url_1_txt,
-    url_1_link: form.url_1_link,
-    url_2_txt: form.url_2_txt,
-    url_2_link: form.url_2_link,
-    plan_frequency: form.plan_frequency,
-    automatic_status: form.automatic_status,
-  };
-
-  const { data, error } = await useFetch(
-    `${config.API_BASE_URL}category-items/update/${id}`,
-    {
-      method: "PUT",
-      body: u_data,
-    }
-  );
-  if (data.value) {
-    console.log("data value", data.value.message);
-    await AWN.success(data.value.message);
-    navigateTo("/category-items");
-  }
-  if (error.value) {
-    await AWN.alert(error.value.statusMessage);
-  }
+const {updateCategory} = actions;
+const updateCategoryItem = () => {
+   updateCategory(id, form.value);
 };
 function isValidUrl(urlString) {
   let urlPattern = new RegExp(
@@ -989,80 +878,10 @@ const copy = async (id) => {
   //alert("Copied the text: " + copyText.value);
 };
 
-const setGroups = async () => {
-  console.log('set groups');
-  if(!localStorage.getItem('activeProject')) {
-    let timer = 0
-    const waitForActiveProject = setInterval(async () => {
-      if (localStorage.getItem('activeProject')) {
-        clearInterval(waitForActiveProject)
-        const activeProject = parseInt(localStorage.getItem('activeProject'))
-        const { data: data } = await useFetch(
-          `${config.API_BASE_URL}groups/all?ProjectId=${form.project}`
-        );
-        groups.value = data.value;
-
-      } else {
-        timer += 1
-        if (timer / 10 > 5) {
-          clearInterval(waitForActiveProject)
-        }
-      }
-    }, 100)
-  } else {
-    const activeProject = parseInt(localStorage.getItem('activeProject'))
-    const { data: data } = await useFetch(
-      `${config.API_BASE_URL}groups/all?ProjectId=${form.project}`
-    );
-    groups.value = data.value;
-
-  }
-};
 const activeAccount = ref(
   localStorage.getItem("activeAccount")
 )
 
-const setProjects = async () => {
-  const { data: data } = await useFetch(
-    `${config.API_BASE_URL}projects/all?AccountId=${activeAccount.value}`
-  )
-  projects.value = data.value
-}
-
-onBeforeMount(setProjects);
-onBeforeMount(setGroups);
-
-onMounted(() => {
-  document.addEventListener("click", function(evt) {
-        let projectEl = document.getElementById('form-project-selector'),
-          targetEl = evt.target; // clicked element
-          do {
-          if(targetEl == projectEl) {
-            // This is a click inside, does nothing, just return.
-            return;
-          }
-          // Go up the DOM
-          targetEl = targetEl.parentNode;
-        } while (targetEl);
-        // This is a click outside.
-        showProjectsList.value = false
-      });
-  document.addEventListener("click", function(evt) {
-        let groupEl = document.getElementById('group-selector'),
-          targetEl = evt.target; // clicked element      
-        do {
-          if(targetEl == groupEl) {
-            // This is a click inside, does nothing, just return.
-            return;
-          }
-          // Go up the DOM
-          targetEl = targetEl.parentNode;
-        } while (targetEl);
-        // This is a click outside.
-        showGroupsList.value = false
-      });
-}
-  );
 
 </script>
 

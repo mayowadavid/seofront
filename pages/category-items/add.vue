@@ -342,7 +342,7 @@
       </svg></span>
     </div>
     <div v-show="showProjectsList" class="absolute overflow-y-auto max-h-96 z-10 w-3/5 top-12  flex flex-col rounded-md text-black bg-[#bcbcbc]">
-      <div @click="setProject(project.id)" class="font-medium hover:bg-slate-300 transition-colors py-4 cursor-pointer flex flex-col gap-y-2" v-for="(project) in projects" :key="project.id">
+      <div @click="handleProject(project.id)" class="font-medium hover:bg-slate-300 transition-colors py-4 cursor-pointer flex flex-col gap-y-2" v-for="(project) in projects" :key="project.id">
         <button type="button">{{ project.name }}</button>
       </div>
       <hr>
@@ -423,8 +423,8 @@
                     </svg></span>
                   </div>
                   <div v-show="showGroupsList" class="absolute overflow-y-auto max-h-96 z-10 top-12 w-3/5  flex flex-col bg-[#bcbcbc] rounded-md text-black">
-                    <div @click="setGroup(group.id)" class="font-medium hover:bg-slate-300 transition-colors py-4 cursor-pointer flex flex-col gap-y-2" v-for="(group) in groups" :key="group.id">
-                      <button type="button" @click="setGroup(group.id)">{{ group.name }}</button>
+                    <div @click="handleGroup(group.id)" class="font-medium hover:bg-slate-300 transition-colors py-4 cursor-pointer flex flex-col gap-y-2" v-for="(group) in groups" :key="group.id">
+                      <button type="button" @click="handleGroup(group.id)">{{ group.name }}</button>
                     </div>
                     <hr>
                     <button type="button" class="font-medium text-center cursor-pointer py-4 hover:bg-slate-300" @click="navigateTo('/user-groups/add'); showGroupsList = false;">+ Add a group</button>
@@ -789,50 +789,6 @@
                 </div>
               </div>
             </div>
-
-            <div class="flex flex-row mt-4">
-              <div class="basis-1/3 px-1.5">
-                <input
-                  type="text"
-                  v-model="form.username"
-                  :disabled="form.username"
-                  id="username"
-                  class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
-                  required
-                />
-              </div>
-
-              <div class="basis-1/3 px-1.5">
-                <input
-                  type="text"
-                  v-model="form.timestamp"
-                  :disabled="form.timestamp"
-                  id="timestamp"
-                  class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
-                  required
-                />
-              </div>
-
-              <div class="basis-1/3 px-1.5">
-                <div class="flex flex-row">
-                  <div
-                    class="basis-1/4 flex items-center text-sm font-medium text-gray-700"
-                  >
-                    Item ID
-                  </div>
-                  <div class="basis-3/4">
-                    <input
-                      type="text"
-                      v-model="form.item_id"
-                      :disabled="form.item_id"
-                      id="item_id"
-                      class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
-                      required
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
 
           <!-- <div class="px-4 py-3 text-right sm:px-6 w-full sm:w-full">
@@ -897,35 +853,11 @@ const groups = ref([]);
 const showProjectsList = ref(false);
 const showGroupsList = ref(false);
 
-const setGroup = (id) => {
-  showGroupsList.value = false;
-  form.group = id
-}
 
-const setProject = async (id) => {
-  showProjectsList.value = false;
-  form.project = id
-  await setGroups()
-
-  form.group = groups.value.length ? groups.value[0].id : null 
-}
-
-// const defUser = JSON.parse(localStorage.getItem("user"));
-let defaultCategory = localStorage.getItem("sometraffic_default_category");
-let defaultGroup = parseInt(localStorage.getItem("sometraffic_default_group"));
-let defaultProject = parseInt(localStorage.getItem("activeProject"));
-let defaultPriority = localStorage.getItem("sometraffic_default_priority");
-let local_data = localStorage.getItem("user");
-
-let timestamp = new Date().toLocaleTimeString();
 
 const uniqueUrl = ref("");
 const duplicateUrl = ref(null);
 const isLoading = ref(false);
-
-setInterval(() => {
-  timestamp = new Date().toLocaleTimeString();
-}, 10);
 
 function isValidUrl(urlString) {
   let urlPattern = new RegExp(
@@ -941,72 +873,48 @@ function isValidUrl(urlString) {
   return !!urlPattern.test(urlString);
 }
 
-const form = reactive({
-  username: JSON.parse(local_data).userName,
-  timestamp,
-  item_id: "",
+const initialValue = reactive({
   information: "",
-  category: defaultCategory ? defaultCategory : null,
+  category: null,
   item_title: "",
-  group: defaultGroup ? defaultGroup : 0,
-  priority: defaultPriority ? defaultPriority : 0,
+  groupId: null,
+  priority: null,
   visibility: null,
   url_1_link: "",
   url_2_txt: "",
   url_2_link: "",
   plan_frequency: null,
   automatic_status: null,
-  project: defaultProject ? defaultProject : null
+  projectId: null,
 });
 
-const createCategoryItem = async () => {
-  if (uniqueUrl.value === "valid") {
-    const a_data = {
-      username: form.username,
-      timestamp: new Date(),
-      item_title: form.item_title,
-      unique_identifier: form.item_id,
-      information: form.information,
-      category: form.category,
-      priority: form.priority,
-      cat_group: form.group,
-      visibility: form.visibility,
-      url_1_link: form.url_1_link,
-      url_2_txt: form.url_2_txt,
-      url_2_link: form.url_2_link,
-      plan_frequency: form.plan_frequency,
-      automatic_status: form.automatic_status,
-    };
+let form = reactive({
+  information: "",
+  category: null,
+  item_title: "",
+  groupId: null,
+  priority: null,
+  visibility: null,
+  url_1_link: "",
+  url_2_txt: "",
+  url_2_link: "",
+  plan_frequency: null,
+  automatic_status: null,
+  projectId: null,
+});
 
-    await useFetch(`${config.API_BASE_URL}category-items/create`, {
-      method: "POST",
-      body: a_data,
-    })
-      .then((result) => {
-        if (result.data.value) {
-          AWN.success(result.data.value.message);
-          uniqueUrl.value = "";
-          navigateTo("/category-items");
-        }
-        if (result.error.value) {
-          //console.log("error value1", result.error.value.data.message);
-          AWN.alert(error);
-        }
-      })
-      .catch((error) => {
-        //console.log("error value", error);
-        AWN.alert("Unable to create item.");
-      });
-  } else {
-    //console.log("url exists");
-    shouldShowDialog.value = true;
-  }
+const store = useStore();
+projects.value = [...store.value?.projects];
+groups.value = [...store.value?.groups];
+
+const {createCategory, checkValidUrl} = actions;
+const createCategoryItem = async () => {
+   const res = await createCategory(form);
+   res && (form = {...initialValue});
 };
 
 const handleSave = async () => {
   let a_data = {
-    username: form.username,
-    timestamp: new Date(),
     item_title: form.item_title,
     unique_identifier: form.item_id,
     information: form.information,
@@ -1021,26 +929,6 @@ const handleSave = async () => {
     automatic_status: form.automatic_status,
   };
 
-  await useFetch(`${config.API_BASE_URL}category-items/create`, {
-    method: "POST",
-    body: a_data,
-  })
-    .then((result) => {
-      if (result.data.value) {
-        AWN.success(result.data.value.message);
-        uniqueUrl.value = "";
-        navigateTo("/category-items");
-      }
-      if (result.error.value) {
-        //console.log("error value1", result.error.value.data.message);
-        shouldShowDialog.value = false;
-        AWN.alert(error);
-      }
-    })
-    .catch((error) => {
-      //console.log("error value", error);
-      AWN.alert("Validation error");
-    });
 };
 
 const getTrackingURL = async () => {
@@ -1065,19 +953,15 @@ function removeTrailingSlash(url) {
 const checkUrl = async (link) => {
   link = removeTrailingSlash(link);
   isLoading.value = true;
-  if (isValidUrl(link)) {
-    AWN.asyncBlock(
-      useFetch(`${config.API_BASE_URL}category-items/all/?url=${link}&accountId=${localStorage.getItem('activeAccount')}`),
-      (resp) => {
-        isLoading.value = false;
-        if (resp.data && resp.data.value.length) {
+  if(isValidUrl(link)) {
+    const resp = await checkValidUrl(link);
+        if(resp) {
+          isLoading.value = false;
           uniqueUrl.value = "invalid";
           duplicateUrl.value = resp.data._rawValue[0].unique_identifier;
         } else {
           uniqueUrl.value = "valid";
         }
-      }
-    );
   }
 };
 
@@ -1117,109 +1001,18 @@ const saveDefaultPriority = async (id) => {
   );
 };
 
-const setGroups = async () => {
-  //console.log('set groups');
-  if(!localStorage.getItem('activeProject')) {
-    let timer = 0
-    const waitForActiveProject = setInterval(async () => {
-      if (localStorage.getItem('activeProject')) {
-        clearInterval(waitForActiveProject)
-        const activeProject = parseInt(localStorage.getItem('activeProject'))
-        const { data: data } = await useFetch(
-          `${config.API_BASE_URL}groups/all?ProjectId=${form.project}`
-        );
-        groups.value = data.value;
-
-      } else {
-        timer += 1
-        if (timer / 10 > 5) {
-          clearInterval(waitForActiveProject)
-        }
-      }
-    }, 100)
-  } else {
-    const { data: data } = await useFetch(
-      `${config.API_BASE_URL}groups/all?ProjectId=${form.project}`
-      );
-      groups.value = data.value;
-      
-    }
-    const activeProject = parseInt(localStorage.getItem('activeProject'))
-  if(groups.value.length === 0 && form.project == activeProject){
-    navigateTo('/user-groups/add')
-  }
+const handleGroup = (id) => {
+ showGroupsList.value = !showGroupsList.value;
+ form.groupId = id;
 };
 const activeAccount = ref(
   localStorage.getItem("activeAccount")
 )
 
-const setProjects = async () => {
-  const { data: data } = await useFetch(
-    `${config.API_BASE_URL}projects/all?AccountId=${activeAccount.value}`
-  )
-  projects.value = data.value
+const handleProject = (id) => {
+  showProjectsList.value = !showProjectsList.value;
+  form.projectId = id;
 }
 
-onBeforeMount(setProjects);
-onBeforeMount(setGroups);
-onBeforeMount(getTrackingURL);
 
-onMounted(() => {
-  document.addEventListener("click", function(evt) {
-        let projectEl = document.getElementById('form-project-selector'),
-          targetEl = evt.target; // clicked element
-          do {
-          if(targetEl == projectEl) {
-            // This is a click inside, does nothing, just return.
-            return;
-          }
-          // Go up the DOM
-          targetEl = targetEl.parentNode;
-        } while (targetEl);
-        // This is a click outside.
-        showProjectsList.value = false
-      });
-  document.addEventListener("click", function(evt) {
-        let groupEl = document.getElementById('group-selector'),
-          targetEl = evt.target; // clicked element      
-        do {
-          if(targetEl == groupEl) {
-            // This is a click inside, does nothing, just return.
-            return;
-          }
-          // Go up the DOM
-          targetEl = targetEl.parentNode;
-        } while (targetEl);
-        // This is a click outside.
-        showGroupsList.value = false
-      });
-}
-  );
-
-// onMounted(() => {
-//   document.addEventListener("keydown", (event) => {
-//     // event.keyCode or event.which  property will have the code of the pressed key
-//     let keyCode = event.keyCode ? event.keyCode : event.which;
-
-//     // 13 points the enter key, 16 points the shift key
-//     if (event.altKey && keyCode === 67) {
-//       getTrackingURL();
-
-//       form.username = JSON.parse(local_data).userName;
-//       form.timestamp = new Date().toLocaleTimeString();
-//       form.information = "";
-//       form.category = "";
-//       form.item_title = "";
-
-//       form.group = "all";
-//       form.priority = "";
-//       form.visibility = "low";
-//       form.url_1_link = "";
-//       form.url_2_txt = "";
-//       form.url_2_link = "";
-//       form.plan_frequency = "";
-//       form.automatic_status = "";
-//     }
-//   });
-// });
 </script>
