@@ -1,6 +1,6 @@
 import axios from 'axios';
 import AWN from "awesome-notifications"
- const Axios = async (method, url, data) => {
+ export const Axios = async (method, url, data) => {
     // console.log(method, url, data)
     const config = useRuntimeConfig();
       const token = localStorage.getItem("token") || '';
