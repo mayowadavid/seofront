@@ -1,4 +1,4 @@
-import Axios, { AwnNotify } from '../utils/function';
+import { Axios, AwnNotify } from '~/utils/function';
 
 export const useStore = () => useState('auth', () => ({
     user: {},
