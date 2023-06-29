@@ -222,10 +222,13 @@ export const actions  = {
     },
     async fetchPlan(){
         const res = await Axios('get', 'plan');
-        res?.data && SET_PLAN(res?.data);
+        res?.data?.length > 0 && SET_PLAN(res?.data);
        console.log('plan', res?.data);
         const id = res?.data?.length > 0 && res?.data[0]?.id || '';
         id && actions.fetchProject(id);
+        if(res?.data){
+            return res?.data;
+        }
     },
     async fetchProject(id: string){
         const {fetchTaskByProject, fetchGroupsByProject, fetchCategories, fetchInformationByProject} = actions;

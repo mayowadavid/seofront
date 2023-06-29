@@ -364,7 +364,7 @@ let selectedAccountIndex = ref(0);
 let selectedProjectIndex = ref(0);
 const db_name = moment(new Date()).format("YYYY-MM-DD-HH_mm");
 const full_db_name = `sometraffic-${db_name}`;
-let accounts = ref([])
+let accounts = ref([]);
 let projects = ref([]);
 const store = useStore();
 const data = actions;
@@ -396,26 +396,34 @@ Promise.all([
             ]);
     showProjectsList.value = !showProjectsList.value;
 }
+
 watch(()=> store?.value?.user, (newData)=>{
-  console.log('user', newData)
-  user.value = {...user.value, ...newData};
-})
+  if(newData){
+    user.value = {...user.value, ...newData};
+  }
+}, { deep: true, immediate: true })
 
 watch(()=> store?.value?.accounts, (newData)=>{
-  accounts.value = [...newData]
-})
+  if(newData){
+    accounts.value = [...newData]
+  }
+}, { deep: true, immediate: true })
 
 watch(()=> store?.value?.projects, (newData)=>{
-  console.log('newData', newData);
-  projects.value = [...newData];
-  projects?.length > 0 && (showProjectsList.value = true);
-})
+  if(newData){
+    projects.value = [...newData];
+  }
+}, { deep: true, immediate: true })
 
-onBeforeMount(() => {
+onBeforeMount(async() => {
   user.value = {...user.value, ...store?.value?.user};
   accounts.value = [...store?.value?.plan];
   projects.value = [...store?.value?.projects];
-  console.log(store.value.projects);
+  const res = await fetchPlan();
+  if(res.length > 0){
+    accounts.value = [...res];
+    projects.value= [...res[0]?.project];
+  }
   //projects.value?.length > 0 && (showProjectsList.value = true);
   //console.log('data', [...projects]);
   // document.addEventListener("click", function(evt) {
@@ -454,6 +462,7 @@ onBeforeMount(() => {
   // }
 }
   );
+
 
 const time = () => {
     const today = new Date();
