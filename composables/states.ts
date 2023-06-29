@@ -162,6 +162,15 @@ export const actions  = {
 
         }
     },
+    async deleteUser(id: string){
+        try{
+            const res = await Axios('delete', `users/${id}`);
+            AwnNotify('user deleted', 'success');
+            return res?.data;
+        }catch(e){
+            AwnNotify('failed to delete', 'alert');
+        }
+    },
     async allUsers(){
         try{
             //console.log('iran');

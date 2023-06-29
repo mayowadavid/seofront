@@ -123,9 +123,10 @@ const store = useStore();
 
 const plans = ref([]);
 plans.value = [...store.value.plan];
-const { signUp } = actions;
+const { signUp, allUsers } = actions;
 const createUser = async () => {
-  signUp(form);
+  await signUp(form);
+  await allUsers();
 };
 
 </script>

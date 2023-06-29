@@ -478,10 +478,10 @@ const handleFbLink = (e) => {
 
 const getTrackingURL = async () => {
   console.log(id);
-  const characters = `abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789${id}`;
+  const characters = `abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ00000000`;
   let uniqueId = '';
 
-  while (uniqueId.length < 10) {
+  while (uniqueId.length < 7) {
     const randomIndex = Math.floor(Math.random() * characters.length);
     const randomChar = characters[randomIndex];
 

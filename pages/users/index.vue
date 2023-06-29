@@ -119,7 +119,7 @@ const shouldShowDialog = ref(false);
 const users = ref([]);
 const accounts = ref([]);
 const config = useRuntimeConfig();
-const {allUsers} = actions;
+const {allUsers, deleteUser} = actions;
 const setUsers = async () => {
   const res = await allUsers();
   if(res){
@@ -128,9 +128,14 @@ const setUsers = async () => {
   }
 };
 
+
+
 const handleDelete = async () => {
   const id = localStorage.getItem("sometraffic_delete_user");
-
+  const res = await deleteUser(id);
+  if(res){
+    shouldShowDialog.value = false;
+  }
   localStorage.removeItem("sometraffic_delete_user");
 };
 
