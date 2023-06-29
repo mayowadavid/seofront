@@ -477,8 +477,7 @@ const handleFbLink = (e) => {
 };
 
 const getTrackingURL = async () => {
-  console.log(id);
-  const characters = `abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ00000000`;
+  const characters = `00000000abcdefghijklmnopqrstuvwxyz`;
   let uniqueId = '';
 
   while (uniqueId.length < 7) {
@@ -489,12 +488,8 @@ const getTrackingURL = async () => {
       uniqueId += randomChar;
     }
   }
-
   const res = `${config.BASE_URL}/${uniqueId}`;
-  console.log('search', res);
   return form.value = {...form.value, tracking_url: res};
-
-
 };
 
 onBeforeMount(()=>{
