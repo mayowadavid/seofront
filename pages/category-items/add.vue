@@ -931,17 +931,6 @@ const handleSave = async () => {
 
 };
 
-const getTrackingURL = async () => {
-  const { data, error } = await useFetch(
-    `${config.API_BASE_URL}category-items/gettrackingurl`
-  );
-  if (data.value) {
-    form.item_id = data.value.newTrackingURl;
-  }
-  if (error.value) {
-    await AWN.alert(error.value.statusMessage);
-  }
-};
 
 function removeTrailingSlash(url) {
   if (url.endsWith('/')) {
@@ -958,9 +947,10 @@ const checkUrl = async (link) => {
         if(resp) {
           isLoading.value = false;
           uniqueUrl.value = "invalid";
-          duplicateUrl.value = resp.data._rawValue[0].unique_identifier;
+          duplicateUrl.value = resp.id;
         } else {
           uniqueUrl.value = "valid";
+           isLoading.value = false;
         }
   }
 };

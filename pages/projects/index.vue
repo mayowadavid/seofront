@@ -154,11 +154,11 @@
                   >
                     <td class="py-3 px-2">
                       <NuxtLink
-                        :to="`/projects/${project.unique_identifier}`"
+                        :to="`/projects/${project.id}`"
                         title="Edit"
                         class="hover:text-white"
                       >
-                        {{ project?.unique_identifier }}
+                        {{ project?.id }}
                       </NuxtLink>
                     </td>
                     <td class="py-3 px-2">{{ project.name }}</td>
@@ -172,7 +172,7 @@
                     <td class="py-3 px-2">
                       <div class="inline-flex items-center space-x-3">
                         <NuxtLink
-                          :to="`/projects/${project.unique_identifier}`"
+                          :to="`/projects/${project.id}`"
                           title="Edit"
                         >
                           <span title="Edit" class="hover:text-white"
@@ -290,40 +290,39 @@ const enterSearch = () => {
   projectsTotal.value = searchdatas.value.length
 }
 
-const form = reactive({
-  id: "",
-  user_id: "",
-  name: "",
-  description: "",
-})
+const store = useStore();
 
-if (id) {
-  
-}
+watch(()=> store?.value?.projects, (newData)=>{
+  if(newData){
+    projects.value = [...newData];
+     searchdatas.value = [...newData];
+     projectsTotal.value = newData.length
+  }
+}, { deep: true, immediate: true })
 
-const setProjects = async () => {
+// const setProjects = async () => {
   
-  searchdatas.value = data.value
-  projects.value = data.value
-  projectsTotal.value = data.value?.length
-}
+//   searchdatas.value = data.value
+//   projects.value = data.value
+//   projectsTotal.value = data.value?.length
+// }
 
-const update = async (id) => {
-  
-}
+const {deleteProject} = actions;
+
 
 const destroy = async (id, deletingName) => {
   shouldShowDialog.value = true
-
-  name.value = deletingName
+  localStorage.setItem("sometraffic_delete_project", id);
 }
 
 const handleDelete = async () => {
   const id = localStorage.getItem("sometraffic_delete_project")
-  
+  await deleteProject(id);
+  shouldShowDialog.value = false;
+   localStorage.removeItem("sometraffic_delete_category");
 }
 
-onBeforeMount(setProjects)
+//onBeforeMount(setProjects)
 </script>
 <style scoped>
 #users_projects h1,

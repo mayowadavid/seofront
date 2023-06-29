@@ -200,6 +200,15 @@ export const actions  = {
             AwnNotify('failed to create', 'alert');
         }
     },
+    async deleteProject(id: string){
+        try{
+            const res = await Axios('delete', `projects/${id}`);
+            AwnNotify('project deleted', 'success');
+            return res?.data;
+        }catch(e){
+            AwnNotify('failed to delete', 'alert');
+        }
+    },
     async fetchSinglePlan(id: string){
         try{
             const res = await Axios('get', `plan/${id}`);
@@ -319,6 +328,25 @@ export const actions  = {
         }catch(e){
 
         }
+    },
+    async fetchOneProject(id: string){
+        try{
+            const res = await Axios('get', `projects/oneProject/${id}`);
+            console.log('one', res?.data)
+            return res?.data;
+        }catch(e){
+
+        }
+    },
+    async updateProjects(id: string, form: {}){
+        try{
+            const res = await Axios('patch', `projects/${id}`, form);
+            AwnNotify('project Updated', 'success')
+            navigateTo("/projects");
+            return res?.data;
+        }catch(e){
+            AwnNotify('Category failed to update', 'alert')
+        };
     },
     async createInformation(form: {}){
         try{

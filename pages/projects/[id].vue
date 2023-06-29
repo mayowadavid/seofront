@@ -25,8 +25,8 @@
                   <div class="col-span-5 pr-4">
                     <input
                       type="text"
-                      v-model="form.unique_identifier"
-                      :disabled="form.unique_identifier"
+                      v-model="form.id"
+                      :disabled="form.id"
                       id="item_id"
                       class="bg-[#dddddd] disabled:bg-gray-300 disabled:text-gray-500 h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
                       required
@@ -63,8 +63,8 @@
                       <div class="col-span-9">
                         <input
                           type="text"
-                          v-model="form.timestamp"
-                          :disabled="form.timestamp"
+                          v-model="form.createdAt"
+                          :disabled="form?.createdAt"
                           id="timestamp"
                           class="disabled:bg-gray-300 disabled:text-gray-500 bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
                           required
@@ -84,8 +84,8 @@
                       <div class="col-span-9">
                         <input
                           type="text"
-                          v-model="form.createdBy"
-                          :disabled="form.createdBy"
+                          v-model="form.user.userName"
+                          :disabled="form?.user?.userName"
                           id="username"
                           class="bg-[#dddddd] disabled:bg-gray-300 disabled:text-gray-500 h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
                           required
@@ -114,7 +114,7 @@
                       required
                     />
                   </div>
-                  <div v-if="JSON.parse(user).userType == 'Administrator'" class="col-span-6 pl-4">
+                  <div v-if="form?.user?.role == 'Administrator'" class="col-span-6 pl-4">
                   <div class="col-span-12">
                     <div class="grid grid-cols-12">
                       <div
@@ -125,8 +125,8 @@
                       <div class="col-span-9">
                         <input
                           type="text"
-                          :value="form.createdBy"
-                          :disabled="form.createdBy"
+                          :value="form?.plan?.name"
+                          :disabled="form?.plan?.name"
                           id="username"
                           class="bg-[#dddddd] disabled:bg-gray-300 disabled:text-gray-500 h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
                           required
@@ -185,77 +185,32 @@
   const config = useRuntimeConfig()
   const { id } = await useRoute().params
   
-  let timestamp = ref(new Date().toLocaleTimeString())
-  let user = localStorage.getItem("user")
-  const activeAccount = ref(
-  localStorage.getItem("activeAccount")
-)
 
   const clickdatas = ref([])
   const uniqueUrl = ref("")
   const isLoading = ref(false)
   
-  setInterval(() => {
-    timestamp.value = new Date().toLocaleTimeString()
-  }, 10)
   
-  const form = reactive({
-    createdBy: "",
+  const form = ref({
     createdAt: "",
-    timestamp,
-    unique_identifier: "",
+    user: {},
     description: "",
     name: "",
     id: ""
   })
   
   
-  const { data: project } = await useFetch(
-    `${config.API_BASE_URL}projects/identifier/${id}`,
-    { key: id }
-  )
   
-  if (project.value) {
-    form.id = project.value.id
-    form.name = project.value.name
-    form.createdBy = project.value.createdBy;
-    form.unique_identifier = project.value.unique_identifier
-    form.description = project.value.description
-    form.createdAt = project.value.createdAt
-  }
   
   const formatDate = (dateString, formatString) => {
     const date = new Date(dateString)
     return moment(date).format(formatString)
   }
+
+  const {updateProjects} = actions;
   
   const updateProject = async () => {
-    const u_data = {
-      AccountId: activeAccount.value,
-      id: form.id,
-      name: form.name,
-      unique_identifier: form.unique_identifier,
-      description: form.description,
-      createdBy: form.createdBy,
-    }
-  
-    const { data, error } = await useFetch(
-      `${config.API_BASE_URL}projects/update/${id}`,
-      {
-        method: "PUT",
-        body: u_data,
-      }
-    )
-    if (data.value) {
-      await AWN.success(data.value.message)
-      navigateTo("/projects").then(()=>{
-          const router = useRouter()
-          router.go("/projects")
-      })
-    }
-    if (error.value) {
-      await AWN.alert(error.value.statusMessage)
-    }
+    updateProjects(id, form.value);
   }
   
   
@@ -277,6 +232,14 @@
     // Alert the copied text
     //alert("Copied the text: " + copyText.value);
   }
+
+onMounted(async ()=>{
+const {fetchOneProject} = actions;
+const res = await fetchOneProject(id);
+if(res?.id){
+  form.value = {...res};
+}
+});
   
   </script>
   
