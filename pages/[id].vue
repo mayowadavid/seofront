@@ -72,7 +72,7 @@ if (id) {
     .then((result) => {
       console.log(result)
       if (result.data.value) {
-        redirect.value = result.data.value.redirect;
+        redirect.value = [result.data.value.redirect];
         // flaq.redirect_flaq = !flaq.redirect_flaq;
         let destination = result.data.value.destination_url;
         if (!destination.includes("http") || !destination.includes("http")) {
