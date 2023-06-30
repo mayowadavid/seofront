@@ -197,7 +197,7 @@
                   v-model="form.taskId"
                   id="task_id"
                   class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
-                  required
+                  
                 />
               </div>
               <div
