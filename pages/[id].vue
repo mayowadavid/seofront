@@ -1,7 +1,7 @@
 <template>
   <div>
-    <Head v-if="redirect?.length > 0">
-      <Title>Some traffic | {{ redirect[0]?.seo_title }}</Title>
+    <Head v-if="redirect">
+      <Title>{{ redirect?.seo_title }} || Some traffic</Title>
 
       <!-- Open Graph Meta Tags -->
       <Meta property="og:title" :content="redirect?.seo_title" />
@@ -73,12 +73,13 @@ if (id) {
       console.log(result)
       if (result.data.value) {
         redirect.value = result.data.value;
+        console.log('redirect', result.data.value);
         // flaq.redirect_flaq = !flaq.redirect_flaq;
         let destination = result.data.value.destination_url;
         if (!destination.includes("http") || !destination.includes("http")) {
           destination = "https://" + destination;
         }
-        window.location.assign(destination);
+       // window.location.assign(destination);
       }
       if (result.error.value) {
         console.log("error value1", result.error.value.data.message);
