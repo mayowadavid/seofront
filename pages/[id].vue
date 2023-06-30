@@ -4,9 +4,9 @@
       <Title>Some traffic | {{ redirect[0]?.seo_title }}</Title>
 
       <!-- Open Graph Meta Tags -->
-      <Meta property="og:title" :content="redirect[0]?.seo_title" />
-      <Meta property="og:description" :content="redirect[0]?.seo_description" />
-      <Meta property="og:image" :content="redirect[0]?.seo_image_url" />
+      <Meta property="og:title" :content="redirect?.seo_title" />
+      <Meta property="og:description" :content="redirect?.seo_description" />
+      <Meta property="og:image" :content="redirect?.seo_image_url" />
       <Meta property="og:url" :content="fullpath" />
       <Meta property="og:type" content="Some traffic web app" />
     </Head>
