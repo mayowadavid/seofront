@@ -333,7 +333,7 @@
   <div class="basis-3/4">
     <div id="form-project-selector" class="relative text-sm">
     <div @click="showProjectsList = !showProjectsList" class="rounded-md cursor-pointer relative flex bg-[#bcbcbc] p-3 w-3/5 text-black">
-      <button class="font-medium" type="button">{{ projects.length ? projects.find(project => project.id === form.project) ? projects.find(project => project.id === form.project).name : 'Select Project' : 'Select Project' }}</button>
+      <button class="font-medium" type="button">{{ projects.length ? projects.find(project => project.id === form.projectId) ? projects.find(project => project.id === form.projectId).name : 'Select Project' : 'Select Project' }}</button>
       <span :class="{ 'rotate-180': showProjectsList }" class="absolute right-3 top-1/2 -translate-y-1"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" width="24px" height="14px" viewBox="0 0 960 560" enable-background="new 0 0 960 560" xml:space="preserve">
 <g id="Rounded_Rectangle_33_copy_4_1_">
 
@@ -415,7 +415,7 @@
                 <div class="basis-3/4">
                   <div id="group-selector" class="relative text-sm ">
                   <div @click="showGroupsList = !showGroupsList" class="rounded-md cursor-pointer relative flex bg-[#bcbcbc] p-3 w-3/5 text-black">
-                    <button class="font-medium" type="button">{{ groups.length ? groups.find(group => group.id === form.group) ? groups.find(group => group.id === form.group).name : 'Select Group' : 'Select Group' }}</button>
+                    <button class="font-medium" type="button">{{ groups.length ? groups.find(group => group.id === form.groupId) ? groups.find(group => group.id === form.groupId).name : 'Select Group' : 'Select Group' }}</button>
                     <span :class="{ 'rotate-180': showGroupsList }" class="absolute right-3 top-1/2 -translate-y-1"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" width="24px" height="14px" viewBox="0 0 960 560" enable-background="new 0 0 960 560" xml:space="preserve">
       <g id="Rounded_Rectangle_33_copy_4_1_">
         <path d="M480,344.181L268.869,131.889c-15.756-15.859-41.3-15.859-57.054,0c-15.754,15.857-15.754,41.57,0,57.431l237.632,238.937   c8.395,8.451,19.562,12.254,30.553,11.698c10.993,0.556,22.159-3.247,30.555-11.698l237.631-238.937   c15.756-15.86,15.756-41.571,0-57.431s-41.299-15.859-57.051,0L480,344.181z"/>
@@ -907,6 +907,28 @@ const store = useStore();
 projects.value = [...store.value?.projects];
 groups.value = [...store.value?.groups];
 
+const projectId = computed(()=> store.value.projectId);
+const checkGroup = computed(()=> store.value.groups);
+const checkProjects = computed(()=> store.value.projects);
+
+if(projectId){
+  form.projectId = projectId.value;
+}
+
+if(projects.value.length <= 0){
+  navigateTo("/projects/add");
+}
+
+if(checkGroup.value.length <= 0){
+  navigateTo("/user-groups/add");
+}
+
+watch(()=> store.value.projectId, (newData)=>{
+  if(newData){
+    form.projectId = newData;
+  }
+})
+
 const {createCategory, checkValidUrl} = actions;
 const createCategoryItem = async () => {
    const res = await createCategory(form);
@@ -992,12 +1014,9 @@ const saveDefaultPriority = async (id) => {
 };
 
 const handleGroup = (id) => {
- showGroupsList.value = !showGroupsList.value;
+ showGroupsList.value = false;
  form.groupId = id;
 };
-const activeAccount = ref(
-  localStorage.getItem("activeAccount")
-)
 
 const handleProject = (id) => {
   showProjectsList.value = !showProjectsList.value;

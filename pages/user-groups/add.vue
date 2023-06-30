@@ -197,14 +197,28 @@
   projectId: "",
 })
 const store = useStore();
-projects.value = [...store.value.projects];
+projects.value = [...store.value?.projects];
 
- const {createGroups} = actions;
+const projectId = computed(()=> store.value.projectId);
+if(projectId){
+  form.projectId = projectId.value;
+}
+
+
+
+
+watch(()=> store.value.projectId, (newData)=>{
+  if(newData){
+    form.projectId = newData;
+  }
+})
+
+
+const {createGroups} = actions;
 const createGroup =  () => {
   createGroups(form);
-  }
+}
   
-
  
   </script>
   

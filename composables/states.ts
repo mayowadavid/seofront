@@ -457,7 +457,7 @@ export const actions  = {
         try{
             const res = await Axios('post', `tracking-url/create`, form);
             AwnNotify('Track url created', 'success')
-            console.log(res?.data);
+            navigateTo("/tracking-url");
             return res?.data;
         }catch(e){
             AwnNotify('failed', 'alert');

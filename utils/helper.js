@@ -37,7 +37,7 @@ const utils =  {
       },
 
     async AwnNotify (message, type) {
-        let globalOptions =  {};
+        let globalOptions =  { position: 'top-left' };
         let notifier = new AWN(globalOptions)
         type == 'success' && notifier.success(message);
         type == 'alert' && notifier.alert(message);

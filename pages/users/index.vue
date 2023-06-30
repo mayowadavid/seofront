@@ -123,7 +123,6 @@ const {allUsers, deleteUser} = actions;
 const setUsers = async () => {
   const res = await allUsers();
   if(res){
-    console.log(res)
     users.value = [...res];
   }
 };
@@ -135,11 +134,12 @@ const handleDelete = async () => {
   const res = await deleteUser(id);
   if(res){
     shouldShowDialog.value = false;
+    localStorage.removeItem("sometraffic_delete_user");
+    allUsers();
   }
-  localStorage.removeItem("sometraffic_delete_user");
 };
 
-const destroy = async (id) => {
+const destroy = (id) => {
   shouldShowDialog.value = true;
   localStorage.setItem("sometraffic_delete_user", id);
 };

@@ -415,6 +415,17 @@ watch(()=> store?.value?.projects, (newData)=>{
   }
 }, { deep: true, immediate: true })
 
+const incrementJoinedGroups = async() => {
+  await useFetch(
+    `${config.API_BASE_URL}joined-groups/create`,
+    {
+    method: "POST",
+  }
+  )
+  joinedGroups.value += 1
+
+}
+
 onBeforeMount(async() => {
   user.value = {...user.value, ...store?.value?.user};
   accounts.value = [...store?.value?.plan];
@@ -422,7 +433,7 @@ onBeforeMount(async() => {
   const res = await fetchPlan();
   if(res.length > 0){
     accounts.value = [...res];
-    projects.value= [...res[0]?.project];
+    projects.value = [...res[0]?.project];
   }
   //projects.value?.length > 0 && (showProjectsList.value = true);
   //console.log('data', [...projects]);
