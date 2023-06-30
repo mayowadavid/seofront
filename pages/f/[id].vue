@@ -59,6 +59,7 @@ if (params.id && params.id.length === 7) {
     })
       .then((result) => {
         if (result.data.value) {
+          console.log('redirect', result.data.value);
           redirect.value = [result.data.value];
           destination.value = result.data.value.destination_url;
           if (

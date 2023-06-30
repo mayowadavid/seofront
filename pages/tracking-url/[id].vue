@@ -385,7 +385,7 @@ const handleFbLink = (e) => {
     }
   } else {
     if (form.value.tracking_url.includes("/f/")) {
-      form.value.tracking_url = form.tracking_url.replace("/f/", "/")
+      form.value.tracking_url = form.value.tracking_url.replace("/f/", "/")
     }
   }
 }

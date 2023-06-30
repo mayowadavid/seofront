@@ -70,7 +70,6 @@ if (id) {
     },
   })
     .then((result) => {
-      console.log(result)
       if (result.data.value) {
         redirect.value = [result.data.value];
         // flaq.redirect_flaq = !flaq.redirect_flaq;
@@ -78,10 +77,10 @@ if (id) {
         if (!destination.includes("http") || !destination.includes("http")) {
           destination = "https://" + destination;
         }
-        zwindow.location.assign(destination);
+        window.location.assign(destination);
       }
       if (result.error.value) {
-        console.log("error value1", result.error.value.data.message);
+        console.log("error value1", result.error.value.data);
         AWN.alert(error);
       }
     })
