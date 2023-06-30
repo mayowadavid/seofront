@@ -373,7 +373,6 @@ const updateTrackingURL = async () => {
 }
 
 const handleFbLink = (e) => {
-  console.log(form)
   facebook_link.value = form.value.facebook_link === "no" ? "yes" : "no"
 
   const lastIndex = form.value.tracking_url.lastIndexOf("/")
