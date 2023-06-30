@@ -34,7 +34,7 @@ const fullpath = path.split("?")[0];
 console.log('32', path, fullpath);
 const { id } = await useRoute().params;
 //console.log(37, id);
-const redirect = ref([]);
+const redirect = ref({});
 const flaq = reactive({ redirect_flaq: false });
 
 const screenWidth = window?.screen?.width;
@@ -72,7 +72,7 @@ if (id) {
     .then((result) => {
       console.log(result)
       if (result.data.value) {
-        redirect.value = [result.data.value.redirect];
+        redirect.value = result.data.value;
         // flaq.redirect_flaq = !flaq.redirect_flaq;
         let destination = result.data.value.destination_url;
         if (!destination.includes("http") || !destination.includes("http")) {
