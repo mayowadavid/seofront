@@ -159,18 +159,33 @@ function isValidUrl(urlString) {
   return !!urlPattern.test(urlString)
 }
 
-const form = reactive({
+const form = ref({
   name: "",
   description: "",
   planId: ""
 })
 const store = useStore();
-plans.value = [...store.value.plan];
+const allPlan = computed(()=>store.value.plan);
+const planId = computed(()=> store.value.planId);
+if(allPlan.value.length > 0){
+  plans.value = [...allPlan.value];
+}
+
+if(planId?.value){
+  form.value.planId = planId.value;
+}
+
+watch(()=>store.value?.planId, (newData)=>{
+  if(newData){
+    form.value.planId = newData;
+  }
+});
+
 user.value = {...store.value.user};
 const {createProjects} = actions;
 
 const createProject = () => {
- createProjects(form);
+ createProjects(form.value);
 }
 
 

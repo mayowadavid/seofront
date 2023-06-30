@@ -96,6 +96,10 @@ export const SET_PROJECT_ID = (projectId: any) => {
     value.projectId = projectId;
 };
 
+export const SET_PLAN_ID = (planId: any) => {
+    value.planId = planId;
+};
+
 const SET_USER = (user: object) => {
         value.user = {...user};
 };
@@ -240,8 +244,8 @@ export const actions  = {
     },
     async fetchPlan(){
         const res = await Axios('get', 'plan');
-        res?.data?.length > 0 && SET_PLAN(res?.data);
-       console.log('plan', res?.data);
+        res?.data?.length > 0 && (SET_PLAN(res?.data), SET_PLAN_ID(res?.data[0]?.id));
+       //console.log('plan', res?.data);
         const id = res?.data?.length > 0 && res?.data[0]?.id || '';
         id && actions.fetchProject(id);
         if(res?.data){
@@ -275,9 +279,9 @@ export const actions  = {
 
         }
     },
-    async checkValidUrl(id: string){
+    async checkValidUrl(url: string){
         try{
-            const res = await Axios('get', `category-items/findUrl/${id}`);
+            const res = await Axios('post', `category-items/findUrl`, {url});
             return res?.data;
         }catch(e){
 
@@ -287,7 +291,8 @@ export const actions  = {
         try{
             const res = await Axios('post', `category-items/create`, form);
             console.log('created', res?.data);
-            AwnNotify('Category created', 'success')
+            AwnNotify('Category created', 'success');
+            navigateTo("/category-items");
             return res?.data;
         }catch(e){
             AwnNotify('Category failed to create', 'alert');

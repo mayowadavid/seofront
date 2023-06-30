@@ -627,7 +627,7 @@
             </button>
       </div>
       <h1 class="font-bold py-4 capitalize">Add Task</h1>
-      <form @submit.prevent="createTasks">
+      <form v-if="id" @submit.prevent="createTasks">
         <div class="border border-white border-solid overflow-hidden sm:rounded-md">
           <div class="px-4 py-5 sm:p-6">
             <div class="col-span-12 sm:col-span-12 mt-2">
@@ -1054,7 +1054,7 @@
               Copy Track Url
             </button>
         </div>
-        <div v-if="form.taskId !== ''" class="w-full border mt-6 border-white border-solid overflow-hidden sm:rounded-md">
+        <div v-if="form.taskId" class="w-full border mt-6 border-white border-solid overflow-hidden sm:rounded-md">
           <AddUrl />
       </div>
     </div>
@@ -1199,7 +1199,13 @@ watch(()=>store.value?.singleCategory, (newData)=>{
 category.value = {...category.value, ...newData};
 });
 
-form.projectId = store.value?.projectId;
+const projectId = computed(()=> store.value.projectId);
+
+if(projectId.value){
+form.projectId = projectId?.value;
+}
+
+
 
 watch(()=>store.value?.projectId, (newData)=>{
 form.projectId = newData;

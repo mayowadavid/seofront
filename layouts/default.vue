@@ -380,6 +380,7 @@ const {
 const handlePlan = (d) => {
   const index = store?.value?.plan?.findIndex(({id})=> id == d);
   selectedAccountIndex.value = index;
+  SET_PLAN_ID(d);
  fetchProject(d);
  showAccountsList.value = !showAccountsList.value;
 }

@@ -374,11 +374,6 @@ const setClickDatas = async () => {
 
 };
 
-// const fetchCategory = async() => {
-//   const { data: data } = await useFetch(
-//       `${config.API_BASE_URL}category-items/allwithproject?projectId=${localStorage.getItem('activeProject')}`
-//       );
-// }
 
 const niceFrequencyDisplay = (n) => {
   if (n === 4) {
@@ -409,16 +404,16 @@ const niceFrequencyDisplay = (n) => {
 };
 
 const destroy = async (id) => {
-  shouldShowDialog.value = true;
+  shouldShowDialog.value = !shouldShowDialog.value;
   localStorage.setItem("sometraffic_delete_category", id);
 };
 
 const handleDelete = async () => {
   const id = localStorage.getItem("sometraffic_delete_category");
   const { data, error } = await useFetch(
-    `${config.API_BASE_URL}category-items/delete/${id}`,
+    `${config.API_BASE_URL}category-items/${id}`,
     {
-      method: "GET",
+      method: "DELETE",
       params: { id: id },
     }
   );
@@ -436,6 +431,12 @@ const handleDelete = async () => {
   await setClickDatas();
 };
 const store = useStore();
+const checkCategory = computed(()=> store.value.categories);
+console.log(checkCategory.value);
+if(checkCategory.value.length > 0){
+  clickdatas.value = [...checkCategory.value];
+  searchdatas.value = [...checkCategory.value];
+}
 watch(()=> store?.value?.categories, (newData)=>{
   clickdatas.value = [...newData];
   searchdatas.value = [...newData];

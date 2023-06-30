@@ -195,7 +195,7 @@
 
 
                         <span
-                          @click="(event) => destroy(project.id, project.name)"
+                          @click="(event) => destroy(project.id)"
                           title="Delete"
                           class="hover:text-white"
                         >
@@ -310,16 +310,20 @@ watch(()=> store?.value?.projects, (newData)=>{
 const {deleteProject} = actions;
 
 
-const destroy = async (id, deletingName) => {
-  shouldShowDialog.value = true
+const destroy = async (id) => {
+  shouldShowDialog.value = !shouldShowDialog.value;
   localStorage.setItem("sometraffic_delete_project", id);
 }
 
 const handleDelete = async () => {
   const id = localStorage.getItem("sometraffic_delete_project")
-  await deleteProject(id);
-  shouldShowDialog.value = false;
-   localStorage.removeItem("sometraffic_delete_category");
+  const res = await deleteProject(id);
+  if(res){
+    shouldShowDialog.value = !shouldShowDialog.value;
+    searchdatas.value = searchdatas.value.filter(d=> d.id !== id);
+    projects.value = projects.value.filter(d=> d.id !== id);
+    localStorage.removeItem("sometraffic_delete_category");
+  }
 }
 
 //onBeforeMount(setProjects)

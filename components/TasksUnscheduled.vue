@@ -347,11 +347,16 @@ const setClickDatas = () => {
 
 const handleDelete = async () => {
   const id = localStorage.getItem("sometraffic_delete_task");
-  deleteTasks(id);
+  const res = await deleteTasks(id);
+  if(res){
+    shouldShowDialog.value = !shouldShowDialog.value;
+    searchdatas.value = searchdatas.value.filter(d=> d.id !== id);
+    clickdatas.value = clickdatas.value.filter(d=> d.id !== id);
+  }
 };
 
 const destroy = async (id) => {
-  shouldShowDialog.value = true;
+  shouldShowDialog.value = !shouldShowDialog.value;
   localStorage.setItem("sometraffic_delete_task", id);
 };
 

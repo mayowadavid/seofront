@@ -207,7 +207,7 @@ watch(()=> store?.value?.information, (newData)=>{
   searchdatas.value = [...newData];
 })
 
-console.log('info', clickdatas);
+//console.log('info', clickdatas);
 
 const config = useRuntimeConfig();
 
@@ -370,15 +370,17 @@ const niceFrequencyDisplay = (n) => {
 const handleDelete = async () => {
   const id = localStorage.getItem("sometraffic_delete_info");
   const { data, error } = await useFetch(
-    `${config.API_BASE_URL}information-items/delete/${id}`,
+    `${config.API_BASE_URL}information-item/${id}`,
     {
-      method: "GET",
+      method: "DELETE",
       params: { id: id },
     }
   );
   if (data.value) {
     shouldShowDialog.value = false;
     await AWN.success(data.value.message);
+    searchdatas.value = searchdatas.value.filter(d=> d.id !== id);
+    clickdatas.value = clickdatas.value.filter(d=> d.id !== id);
   }
   if (error.value) {
     shouldShowDialog.value = false;

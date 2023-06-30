@@ -170,11 +170,16 @@ const setTrackingURLs = async() => {
 
 const handleDelete = async () => {
   const id = localStorage.getItem("sometraffic_delete_trackingurl");
-  deleteTrackUrl(id);
+  const res = await deleteTrackUrl(id);
+  if(res){
+    shouldShowDialog.value = !shouldShowDialog.value;
+    localStorage.removeItem("sometraffic_delete_user");
+    tracking_urls.value = tracking_urls.value.filter(d=> d.id !== id);
+  }
 };
 
 const destroy = async (id) => {
-  shouldShowDialog.value = true;
+  shouldShowDialog.value = !shouldShowDialog.value;
   localStorage.setItem("sometraffic_delete_trackingurl", id);
 };
 

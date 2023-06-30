@@ -87,9 +87,12 @@ const taskHistory = ref([]);
 const store = useStore();
 const projectId = store.value.projectId;
 const {fetchTaskByProject} = actions;
-taskAll.value = [...store.value.tasks];
+const fetchTask = computed(()=> store.value.tasks);
+if(fetchTask){
+  taskAll.value = [...fetchTask.value];
+}
+
 watch(()=> store?.value?.tasks, (newData)=>{
-  console.log('new', [...newData]);
   taskAll.value = [...newData];
 })
 const activeTabOne = () => {

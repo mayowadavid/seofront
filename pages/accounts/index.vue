@@ -301,9 +301,8 @@ const setAccounts = () => {
 
 
 const destroy = async (id) => {
-  shouldShowDialog.value = true
+  shouldShowDialog.value = !shouldShowDialog.value;
   localStorage.setItem("sometraffic_delete_account", id)
-  name.value = deletingName
 }
 const { deletePlan } = actions;
 const handleDelete = () => {

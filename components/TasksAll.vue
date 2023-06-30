@@ -93,7 +93,7 @@
         <tbody>
           <tr
             class="border-b border-gray-700"
-            v-for="clickdata in searchdatas"
+            v-for="clickdata in props?.task"
             :key="clickdata.id"
           >
             <td class="py-3 px-2">
@@ -116,7 +116,7 @@
             </td>
             <td class="py-3 px-2">
               {{
-                clickdata.information.length > 90
+                clickdata?.information?.length > 90
                   ? clickdata?.information.slice(0, 90) + "..."
                   : clickdata?.information
               }}
@@ -224,7 +224,7 @@ const clickdatasTotal = ref(0);
 const search = reactive({
   vaClDa: id !== undefined ? id: "",
 });
-const { limit, allTask, showSearch } = toRefs(props);
+const { limit, task, showSearch } = toRefs(props);
 // console.log("showSearch &  limit: ", limit.value, itemid.value, showSearch.value);
 
 const empty = () => {
@@ -322,22 +322,26 @@ const nicePriority = (n) => {
   }
 };
 
+  if(task?.length > 0){
+    clickdatas.value = [...task];
+    searchdatas.value = [...task];
+  }
 
 
-const setClickDatas = () => {
-   clickdatas.value = props.task.length > 0 ? [...props.task]: [];
-   searchdatas.value =props.task.length > 0 ? [...props.task]: [];
-};
 
 const handleDelete = async () => {
   const id = localStorage.getItem("sometraffic_delete_task");
-  deleteTasks(id);
+  const res = await deleteTasks(id);
+  if(res){
+    shouldShowDialog.value = !shouldShowDialog.value;
+    searchdatas.value = searchdatas.value.filter(d=> d.id !== id);
+    clickdatas.value = clickdatas.value.filter(d=> d.id !== id);
+  }
 };
 
 const destroy = async (id) => {
-  shouldShowDialog.value = true;
+  shouldShowDialog.value = !shouldShowDialog.value;
   localStorage.setItem("sometraffic_delete_task", id);
 };
 
-onBeforeMount(setClickDatas);
 </script>

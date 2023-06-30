@@ -111,7 +111,7 @@ definePageMeta({
 });
 const AWN = inject("$awn");
 const config = useRuntimeConfig();
-const form = reactive({
+const form = ref({
   userName: "",
   email: "",
   password: "",
@@ -122,10 +122,19 @@ const form = reactive({
 const store = useStore();
 
 const plans = ref([]);
-plans.value = [...store.value.plan];
+const allPlan = computed(()=>store.value.plan);
+if(allPlan.value.length > 0){
+  plans.value = [...allPlan.value];
+}
+
+watch(()=>store.value?.planId, (newData)=>{
+  if(newData){
+    form.value.planId = newData;
+  }
+});
 const { signUp, allUsers } = actions;
 const createUser = async () => {
-  await signUp(form);
+  await signUp(form.value);
   await allUsers();
 };
 

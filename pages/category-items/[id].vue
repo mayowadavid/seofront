@@ -7,6 +7,7 @@
 
         <span>
           <button
+          :disabled="!id"
             class="bg-[#bcbcbc] inline-flex justify-center rounded-md border px-4 py-2 mt-4 mr-2 text-black"
           >
             <nuxt-link
@@ -18,6 +19,7 @@
             >
           </button>
           <button
+          :disabled="!id"
             class="bg-[#bcbcbc] inline-flex justify-center rounded-md border px-4 py-2 mt-4 text-black"
           >
             <nuxt-link
@@ -771,12 +773,12 @@ const showGroupsList = ref(false);
 
 const setGroup = (id) => {
   showGroupsList.value = false;
-  form.group = id
+  form.value.groupsId = id
 }
 
 const setProject = async (id) => {
   showProjectsList.value = false;
-  form.project = id
+  form.value.projectId = id
   await setGroups()
 
 }
@@ -787,7 +789,8 @@ const form = ref({
   information: "",
   category: "",
   item_title: "",
-  group: "",
+  groups: "",
+  groupsId: "",
   priority: "",
   visibility: null,
   url_1_link: "",
@@ -796,17 +799,28 @@ const form = ref({
   plan_frequency: "",
   automatic_status: null,
   createdAt: "",
+  projectId: "",
   project: "",
   task: [],
   informationItem: [],
 });
 const store = useStore();
+groups.value = [...store.value?.groups];
+projects.value = [...store.value?.projects];
 watch(()=>store.value?.singleCategory, (newData)=>{
 form.value = {...form.value, ...newData};
 });
 
-projects.value = [...store.value?.projects];
-groups.value = [...store.value?.groups];
+const fetchProjects = computed(()=> store.value.projects);
+const fetchGroups = computed(()=> store.value.groups);
+
+if(fetchProjects.length > 0){
+  projects.value = [... fetchProjects.value];
+}
+if(fetchGroups.length > 0){
+  groups.value = [...fetchGroups.value];
+}
+
 
 
 onMounted(async ()=>{
@@ -820,7 +834,7 @@ const formatDate = (dateString, formatString) => {
   const date = new Date(dateString);
   return moment(date).format(formatString);
 };
-const {updateCategory} = actions;
+const {updateCategory, checkValidUrl} = actions;
 const updateCategoryItem = () => {
    updateCategory(id, form.value);
 };
@@ -838,24 +852,27 @@ function isValidUrl(urlString) {
   return !!urlPattern.test(urlString);
 }
 
+function removeTrailingSlash(url) {
+  if (url.endsWith('/')) {
+    return url.slice(0, -1); // Remove the last character (forward slash)
+  }
+  return url; // Return the URL as is if it doesn't end with a forward slash
+}
+
 const checkUrl = async (link) => {
+  link = removeTrailingSlash(link);
   isLoading.value = true;
-  if (isValidUrl(link)) {
-    AWN.asyncBlock(
-      useFetch(`${config.API_BASE_URL}category-items/all/?url=${link}&accountId=${localStorage.getItem('activeAccount')}`),
-      (resp) => {
-        isLoading.value = false;
-        if (resp.data && resp.data.value.length) {
-          if(resp.data.value[0].unique_identifier === id){
-            uniqueUrl.value = "valid";
-          }else{
-            uniqueUrl.value = "invalid";
-          }
+  if(isValidUrl(link)) {
+    const resp = await checkValidUrl(link);
+        if(resp?.id) {
+          isLoading.value = false;
+          uniqueUrl.value = "invalid";
+          duplicateUrl.value = resp.id;
         } else {
           uniqueUrl.value = "valid";
+           isLoading.value = false;
+           duplicateUrl.value = "";
         }
-      }
-    );
   }
 };
 

@@ -139,7 +139,7 @@ const updateUser = () => {
 onBeforeMount(async()=>{ 
   const res = await fetchUser(id);
   if(res){
-    console.log(res);
+    //console.log(res);
     form.value = {...form.value, ...res};
   }
 })

@@ -123,6 +123,7 @@ const {allUsers, deleteUser} = actions;
 const setUsers = async () => {
   const res = await allUsers();
   if(res){
+    console.log('users', res);
     users.value = [...res];
   }
 };
@@ -133,14 +134,14 @@ const handleDelete = async () => {
   const id = localStorage.getItem("sometraffic_delete_user");
   const res = await deleteUser(id);
   if(res){
-    shouldShowDialog.value = false;
+    shouldShowDialog.value = !shouldShowDialog.value;
     localStorage.removeItem("sometraffic_delete_user");
-    allUsers();
+    users.value = users.value.filter(d=> d.id !== id);
   }
 };
 
 const destroy = (id) => {
-  shouldShowDialog.value = true;
+  shouldShowDialog.value = !shouldShowDialog.value;
   localStorage.setItem("sometraffic_delete_user", id);
 };
 
