@@ -51,16 +51,16 @@ if (params.id && params.id.length === 7) {
     console.log("Save it.");
   } else {
     console.log("Redirect it or show preview or do nothing.");
-    await useFetch(`${config.API_BASE_URL}trackingurl/get-meta`, {
+    await useFetch(`${config.API_BASE_URL}tracking-url/getclicks`, {
       method: "POST",
       body: {
-        tracking_url: fullpath,
+        tracking_url: path,
       },
     })
       .then((result) => {
         if (result.data.value) {
-          redirect.value = result.data.value;
-          destination.value = result.data.value[0].destination_url;
+          redirect.value = [result.data.value];
+          destination.value = result.data.value.destination_url;
           if (
             !destination.value.includes("http") ||
             !destination.value.includes("https")

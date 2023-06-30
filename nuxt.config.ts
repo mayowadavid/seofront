@@ -60,7 +60,7 @@ export default defineNuxtConfig({
 
     },
     plugins: [
-        { src: '~/plugins/awn.js', ssr: false, mode: "client" }
+        { src: '~/plugins/awn.js', ssr: false, mode: "client" },
     ],
     css: ['awesome-notifications/dist/style.css', 'assets/css/custom.css']
 })

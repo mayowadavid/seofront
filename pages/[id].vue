@@ -1,12 +1,12 @@
 <template>
   <div>
-    <Head v-if="redirect">
-      <Title>{{ redirect?.seo_title }} || Some traffic</Title>
+    <Head v-if="redirect?.length > 0">
+      <Title>Some traffic | {{ redirect[0]?.seo_title }}</Title>
 
       <!-- Open Graph Meta Tags -->
-      <Meta property="og:title" :content="redirect?.seo_title" />
-      <Meta property="og:description" :content="redirect?.seo_description" />
-      <Meta property="og:image" :content="redirect?.seo_image_url" />
+      <Meta property="og:title" :content="redirect[0]?.seo_title" />
+      <Meta property="og:description" :content="redirect[0]?.seo_description" />
+      <Meta property="og:image" :content="redirect[0]?.seo_image_url" />
       <Meta property="og:url" :content="fullpath" />
       <Meta property="og:type" content="Some traffic web app" />
     </Head>
@@ -34,7 +34,7 @@ const fullpath = path.split("?")[0];
 console.log('32', path, fullpath);
 const { id } = await useRoute().params;
 //console.log(37, id);
-const redirect = ref({});
+const redirect = ref([]);
 const flaq = reactive({ redirect_flaq: false });
 
 const screenWidth = window?.screen?.width;
@@ -72,14 +72,13 @@ if (id) {
     .then((result) => {
       console.log(result)
       if (result.data.value) {
-        redirect.value = result.data.value;
-        console.log('redirect', result.data.value);
+        redirect.value = [result.data.value];
         // flaq.redirect_flaq = !flaq.redirect_flaq;
         let destination = result.data.value.destination_url;
         if (!destination.includes("http") || !destination.includes("http")) {
           destination = "https://" + destination;
         }
-       window.location.assign(destination);
+        zwindow.location.assign(destination);
       }
       if (result.error.value) {
         console.log("error value1", result.error.value.data.message);

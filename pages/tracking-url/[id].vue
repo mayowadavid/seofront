@@ -373,22 +373,23 @@ const updateTrackingURL = async () => {
 }
 
 const handleFbLink = (e) => {
-  facebook_link.value = form.facebook_link === "no" ? "yes" : "no";
+  console.log(form)
+  facebook_link.value = form.value.facebook_link === "no" ? "yes" : "no"
 
-  const lastIndex = form.tracking_url.lastIndexOf("/");
-  const beforeIdentifier = form.tracking_url.substring(0, lastIndex);
-  const afterIdentifier = form.tracking_url.substring(lastIndex + 1);
+  const lastIndex = form.value.tracking_url.lastIndexOf("/")
+  const beforeIdentifier = form.value.tracking_url.substring(0, lastIndex)
+  const afterIdentifier = form.value.tracking_url.substring(lastIndex + 1)
 
   if (facebook_link.value === "yes") {
-    if (!form.tracking_url.includes("/f/")) {
-      form.tracking_url = beforeIdentifier + "/f/" + afterIdentifier;
+    if (!form.value.tracking_url.includes("/f/")) {
+      form.value.tracking_url = beforeIdentifier + "/f/" + afterIdentifier
     }
   } else {
-    if (form.tracking_url.includes("/f/")) {
-      form.tracking_url = form.tracking_url.replace("/f/", "/");
+    if (form.value.tracking_url.includes("/f/")) {
+      form.value.tracking_url = form.tracking_url.replace("/f/", "/")
     }
   }
-};
+}
 
 const copy = async (id) => {
   // Get the text field
