@@ -87,7 +87,7 @@
                   </span>
                 </div>
               </td>
-              <td class="py-3 px-2">{{ tr_url.taskId }}</td>
+              <td class="py-3 px-2">{{ tr_url.tasksId }}</td>
               <td class="py-3 px-2">
                 <div class="inline-flex items-center space-x-3">
                   <NuxtLink

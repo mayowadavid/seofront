@@ -194,7 +194,7 @@
               <div class="basis-1/4">
                 <input
                   type="text"
-                  v-model="form.taskId"
+                  v-model="form.tasksId"
                   id="task_id"
                   class="bg-[#dddddd] h-10 py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm"
                   
@@ -358,7 +358,7 @@ const form = ref({
   id: id,
   tracking_url: "",
   destination_url: "",
-  taskId: "",
+  tasksId: "",
   seo_title: "",
   seo_description: "",
   seo_image_url: "",

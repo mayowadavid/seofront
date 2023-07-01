@@ -214,7 +214,7 @@
 
                                 <div class="flex flex-row py-2">
                                     <div class="basis-1/2">
-                                        <input type="text" v-model="form.testmail" id="testmail"
+                                        <input type="text" v-model="form.receiver" id="testmail"
                                             class="bg-[#dddddd] py-2 px-3 text-gray-900 mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-gray-800 focus:ring-indigo-500 sm:text-sm" />
                                     </div>
                                 </div>
@@ -223,7 +223,7 @@
                     </div>
 
                     <div class="px-4 py-3 text-left sm:px-6">
-                        <button type="button" @click.prevent="sendTestMail" :disabled="form.testmail == ''"
+                        <button type="button" @click.prevent="sendTestMail" :disabled="form.receiver == ''"
                             class="bg-[#bcbcbc] inline-flex justify-center rounded-md border border-transparent py-2 px-4 text-sm font-medium text-gray-800 shadow-sm hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Send
                             test email</button>
                         <span class="inline-flex " v-if="flaq.mail_send_flaq">
@@ -260,13 +260,12 @@ const form = reactive({
     webmail_url: '',
     technical_information: '',
     information: '',
-    testmail: ''
+    receiver: ''
 
 })
 
 const addEmail = async () => {
     let em_data = {
-        id: form.id,
         email: form.email,
         password: form.password,
         sender: form.sender,
@@ -280,11 +279,10 @@ const addEmail = async () => {
         n_smtp_port: form.n_smtp_port,
         webmail_url: form.webmail_url,
         technical_information: form.technical_information,
-        information: form.information,
-        testmail: form.testmail
+        information: form.information
     };
 
-    const { data, error } = await useFetch(`${config.API_BASE_URL}mail/create`, {
+    const { data, error } = await useFetch(`${config.API_BASE_URL}admin-email-settings/create`, {
         method: 'POST',
         body: em_data
     });
@@ -302,7 +300,7 @@ const addEmail = async () => {
 
 
 const setMail = async () => {
-    const { data, error } = await useFetch(`${config.API_BASE_URL}mail/all`)
+    const { data, error } = await useFetch(`${config.API_BASE_URL}admin-email-settings/all`)
     // mails.value = data.value
     if (data.value) {
         // console.log('data.value.length()', );
@@ -351,10 +349,10 @@ const update = async (id) => {
         webmail_url: form.webmail_url,
         technical_information: form.technical_information,
         information: form.information,
-        testmail: form.testmail
+        receiver: form.receiver
     };
-    const { data, error } = await useFetch(`${config.API_BASE_URL}mail/update/${id}`, {
-        method: 'PUT',
+    const { data, error } = await useFetch(`${config.API_BASE_URL}admin-email-settings/${id}`, {
+        method: 'PATCH',
         params: { id: id },
         body: em_up_data
     })
@@ -391,9 +389,9 @@ const sendTestMail = async () => {
         webmail_url: form.webmail_url,
         technical_information: form.technical_information,
         information: form.information,
-        testmail: form.testmail
+        receiver: form.receiver
     };
-    const { data, error } = await useFetch(`${config.API_BASE_URL}mail/sendmail`, {
+    const { data, error } = await useFetch(`${config.API_BASE_URL}admin-email-settings/sendMail`, {
         method: 'POST',
         body: mail_data
     });
