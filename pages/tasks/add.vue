@@ -1054,7 +1054,7 @@
               Copy Track Url
             </button>
         </div>
-        <div v-if="form.taskId" class="w-full border mt-6 border-white border-solid overflow-hidden sm:rounded-md">
+        <div class="w-full border mt-6 border-white border-solid overflow-hidden sm:rounded-md">
           <AddUrl />
       </div>
     </div>
