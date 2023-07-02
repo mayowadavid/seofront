@@ -216,9 +216,9 @@ const {fetchClickList} = actions;
 
 const setClickDatas = async () => {
   const res = await fetchClickList();
-  console.log(res);
-  clickdatas.value = [...res];
-  searchdatas.value = [...res];
+  const data = res?.sort((a, b)=> a.createdAt.getTime() - b.createdAt.getTime())
+  clickdatas.value = [...data];
+  searchdatas.value = [...data];
 };
 
 onBeforeMount(setClickDatas);

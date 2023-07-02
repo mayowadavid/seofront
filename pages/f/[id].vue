@@ -104,78 +104,36 @@ if (params.id && params.id.length === 7) {
     await useFetch(`${config.API_BASE_URL}tracking-url/getclicks`, {
       method: "POST",
       body: {
-        tracking_url: fullpath,
+        tracking_url: path,
         referrer_url: document.referrer,
         screen_resolution: screenWidth + "x" + screenHeight,
         operating_system,
         device,
         browser_language,
-        network_speed
+        network_speed,
       },
+    }).then((result) => {
+      if (result.data.value) {
+        redirect.value = [result.data.value];
+        // flaq.redirect_flaq = !flaq.redirect_flaq;
+        let destination = result.data.value.destination_url;
+        if (!destination.includes("http") || !destination.includes("http")) {
+          destination = "https://" + destination;
+        }
+        window.location.assign(destination);
+      }
+      if (result.error.value) {
+        console.log("error value1", result.error.value.data);
+        AWN.alert(error);
+      }
     })
-      .then((result) => {
-        if (result.data.value) {
-          console.log('redirect', result.data.value);
-          redirect.value = [result.data.value];
-          destination.value = result.data.value.destination_url;
-          if (
-            !destination.value.includes("http") ||
-            !destination.value.includes("https")
-          ) {
-            destination.value = "https://" + destination.value;
-          }
-
-          // router.push({
-          //   path: "/_r",
-          //   query: {
-          //     title: result.data.value[0].seo_title,
-          //     description: result.data.value[0].seo_description,
-          //     image: result.data.value[0].seo_image_url,
-          //   },
-          // });
-        }
-        if (result.error.value) {
-          console.log("Error no result", result.error);
-        }
-      })
-      .catch((error) => {
-        console.log("Error useFetch: ", error);
-      });
+    .catch((error) => {
+      AWN.alert(error);
+    });
+      
 
     
   }
-  console.log("Redirect: ", redirect);
+ 
 }
-onMounted(async () => {
-    const screenWidth = screen.width;
-    const screenHeight = screen.height;
-    console.log('screenHeight', screenHeight);
-    console.log('screenWidth', screenWidth);
-    let network_speed = "";
-    if (navigator.connection) {
-      const connection = navigator.connection;
-      const speedMbps = connection.downlink; // Get the estimated download speed in Mbps
-      network_speed = speedMbps + " Mbps";
-      console.log("Internet speed is " + speedMbps + " Mbps");
-    } else {
-      console.log("navigator.connection is not available");
-    }
-
-    await useLazyAsyncData("mountains", () => _);
-
-    await useFetch(`${config.API_BASE_URL}trackingurl/redirect`, {
-      method: "POST",
-      body: {
-        id: params.id,
-        tracking_url: fullpath,
-        screen_resolution: screenWidth + "x" + screenHeight,
-        network_speed,
-        referrer_url: document.referrer,
-      },
-    })
-      .catch((error) => {
-        console.log("Error useFetch: ", error);
-      });
-  window.location.assign(destination.value);
-});
 </script>
