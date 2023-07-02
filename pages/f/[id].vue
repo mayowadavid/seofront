@@ -30,19 +30,27 @@ definePageMeta({
 
 const route = useRoute();
 const router = useRouter();
-const screen = useScreen();
 const config = useRuntimeConfig();
 
 const params = route.params;
 const query = route.query;
 const redirect = ref([]);
 const destination = ref("");
-const screenWidth = screen.width;
-const screenHeight = screen.height;
+const screenWidth = window?.screen?.width;
+const screenHeight = window?.screen?.height;
 const operating_system = navigator.userAgent;
 const browser_language = navigator.language;
 const userAgent = navigator.userAgent;
 const device = navigator.userAgent;
+const connection = navigator.connection;
+let network_speed = "";
+if (navigator.connection) {
+  const connection = navigator.connection;
+  const speedMbps = connection.downlink; // Get the estimated download speed in Mbps
+  network_speed = speedMbps + " Mbps";
+} else {
+  console.log("navigator.connection is not available");
+}
 
 const flaq = reactive({ redirect_flaq: false });
 
@@ -55,11 +63,12 @@ if (params.id && params.id.length === 7) {
       method: "POST",
       body: {
         tracking_url: fullpath,
-        referrer_url: "facebook.com",
-        screen_resolution: `${screenWidth} - ${screenHeight}` ,
+        referrer_url: document.referrer,
+        screen_resolution: screenWidth + "x" + screenHeight,
         operating_system,
         device,
-        browser_language
+        browser_language,
+        network_speed
       },
     })
       .then((result) => {
