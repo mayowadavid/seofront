@@ -148,6 +148,32 @@ export const actions  = {
 
         }
     },
+    async downloadFile(){
+        try{
+            //console.log('iran');
+            const download = true;
+            const response = await Axios('GET', 'download', download);
+            console.log(response);
+            // Get the filename from the Content-Disposition header
+            const contentDisposition = response?.headers['content-disposition'];
+            const match = contentDisposition.match(/filename="(.+)"/);
+            const filename = match ? match[1] : 'database_dump.sql';
+
+            // Create a download link and trigger the download
+            const url = window.URL.createObjectURL(new Blob([response?.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', filename);
+            document.body.appendChild(link);
+            link.click();
+
+            // Clean up the URL and link
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(link);
+        }catch(e){
+
+        }
+    },
     async fetchUser(id: string){
         try{
             const res = await Axios('get', `users/${id}`);
@@ -225,7 +251,7 @@ export const actions  = {
     async updatePlan(id: string, form: {}){
         try{
             const res = await Axios('patch', `plan/${id}`, form);
-            console.log('created', res?.data);
+            //console.log('created', res?.data);
             AwnNotify('plan Updated', 'success')
             navigateTo("/accounts");
             return res?.data;
@@ -290,7 +316,7 @@ export const actions  = {
     async createCategory(form: {}){
         try{
             const res = await Axios('post', `category-items/create`, form);
-            console.log('created', res?.data);
+            //console.log('created', res?.data);
             AwnNotify('Category created', 'success');
             navigateTo("/category-items");
             return res?.data;
@@ -301,7 +327,7 @@ export const actions  = {
     async updateCategory(id: string, form: {}){
         try{
             const res = await Axios('patch', `category-items/${id}`, form);
-            console.log('created', res?.data);
+            //console.log('created', res?.data);
             AwnNotify('Category Updated', 'success')
             navigateTo("/category-items");
             return res?.data;

@@ -45,7 +45,6 @@ const flaq = reactive({ redirect_flaq: false });
 const path = config.BASE_URL + route.fullPath;
 const fullpath = path.split("?")[0];
 
-console.log("Full Path: ", path);
 if (params.id && params.id.length === 7) {
   if (query.fbclid) {
     console.log("Save it.");
@@ -54,7 +53,7 @@ if (params.id && params.id.length === 7) {
     await useFetch(`${config.API_BASE_URL}tracking-url/getclicks`, {
       method: "POST",
       body: {
-        tracking_url: path,
+        tracking_url: fullpath,
       },
     })
       .then((result) => {

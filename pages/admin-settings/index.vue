@@ -51,14 +51,10 @@ const setAccounts = async () => {
   // accounts.value = data.value
 }
 
+const {downloadFile} = actions;
 
-
-const downloadDb = () => {
-  // const link = document.createElement("a");
-  // link.href = `${config.API_BASE_URL}files/sometraffic.sql`;
-  // link.download = full_db_name;
-  // link.target = "_blank";
-  // link.click();
+const downloadDb = async() => {
+  await downloadFile();
 };
 
 const setActiveAccount = (e) => {

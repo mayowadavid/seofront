@@ -1,11 +1,11 @@
 import axios from 'axios';
 import AWN from "awesome-notifications"
 const utils =  {
-    async Axios(method, url, data) {
+    async Axios(method, url, data, download) {
         // console.log(method, url, data)
-        const config = useRuntimeConfig();
+        const env = useRuntimeConfig();
           const token = localStorage.getItem("token") || '';
-          const baseUrl = config.API_BASE_URL;
+          const baseUrl = env.API_BASE_URL;
           url = baseUrl + url;
           data =  data || {};
           let headers = {Accept: 'application/json',
@@ -13,14 +13,22 @@ const utils =  {
               'authorization': `bearer ${token}` }
           
           try {
-              if(method == 'get'){
+              if(method == 'get' && download){
                   const config = {
                       url,
                       method,
-                      headers
+                      headers,
+                      responseType: 'blob',
                   };
                   return axios(config);
-              }else {
+              } else if(method == 'get'){
+                const config = {
+                    url,
+                    method,
+                    headers
+                };
+                return axios(config);
+            } else {
                   const config = {
                       url,
                       method,
