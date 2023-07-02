@@ -30,15 +30,19 @@ definePageMeta({
 
 const route = useRoute();
 const router = useRouter();
-// const screen = useScreen();
+const screen = useScreen();
 const config = useRuntimeConfig();
 
 const params = route.params;
 const query = route.query;
 const redirect = ref([]);
 const destination = ref("");
-// const screenWidth = screen.width;
-// const screenHeight = screen.height;
+const screenWidth = screen.width;
+const screenHeight = screen.height;
+const operating_system = navigator.userAgent;
+const browser_language = navigator.language;
+const userAgent = navigator.userAgent;
+const device = navigator.userAgent;
 
 const flaq = reactive({ redirect_flaq: false });
 
@@ -47,7 +51,45 @@ const fullpath = path.split("?")[0];
 
 if (params.id && params.id.length === 7) {
   if (query.fbclid) {
-    console.log("Save it.");
+    await useFetch(`${config.API_BASE_URL}tracking-url/getclicks`, {
+      method: "POST",
+      body: {
+        tracking_url: fullpath,
+        referrer_url: "facebook.com",
+        screen_resolution: `${screenWidth} - ${screenHeight}` ,
+        operating_system,
+        device,
+        browser_language
+      },
+    })
+      .then((result) => {
+        if (result.data.value) {
+          console.log('redirect', result.data.value);
+          redirect.value = [result.data.value];
+          destination.value = result.data.value.destination_url;
+          if (
+            !destination.value.includes("http") ||
+            !destination.value.includes("https")
+          ) {
+            destination.value = "https://" + destination.value;
+          }
+
+          // router.push({
+          //   path: "/_r",
+          //   query: {
+          //     title: result.data.value[0].seo_title,
+          //     description: result.data.value[0].seo_description,
+          //     image: result.data.value[0].seo_image_url,
+          //   },
+          // });
+        }
+        if (result.error.value) {
+          console.log("Error no result", result.error);
+        }
+      })
+      .catch((error) => {
+        console.log("Error useFetch: ", error);
+      });
   } else {
     console.log("Redirect it or show preview or do nothing.");
     await useFetch(`${config.API_BASE_URL}tracking-url/getclicks`, {
