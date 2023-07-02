@@ -105,6 +105,12 @@ if (params.id && params.id.length === 7) {
       method: "POST",
       body: {
         tracking_url: fullpath,
+        referrer_url: document.referrer,
+        screen_resolution: screenWidth + "x" + screenHeight,
+        operating_system,
+        device,
+        browser_language,
+        network_speed
       },
     })
       .then((result) => {
