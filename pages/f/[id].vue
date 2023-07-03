@@ -62,33 +62,37 @@ const fullpath = path.split("?")[0];
 if (params.id && params.id.length === 7) {
   flaq.redirect_flaq = !flaq.redirect_flaq;
   if (query.fbclid) {
-        try {
-      const body = {
-          tracking_url: fullpath,
-          screen_resolution: `${screenWidth}x${screenHeight}`,
-          operating_system,
-          device,
-          browser_language,
-          network_speed,
-          referrer_url: document.referrer,
+       await useFetch(`${config.API_BASE_URL}trackingurl/get-meta`, {
+      method: "POST",
+      body: {
+        tracking_url: fullpath,
+        screen_resolution: `${screenWidth}x${screenHeight}`,
+        operating_system,
+        device,
+        browser_language,
+        network_speed,
+        referrer_url: document.referrer,
+      },
+    })
+      .then((result) => {
+        if (result.data.value) {
+          redirect.value = result.data.value;
+          destination.value = result.data.value[0].destination_url;
+          if (
+            !destination.value.includes("http") ||
+            !destination.value.includes("https")
+          ) {
+            destination.value = "https://" + destination.value;
+          }
+          window.location.assign(destination);
         }
-      const response = await Axios('post',`tracking-url/getclicks`, 
-        body
-      );
-      if (response.data && response.status == 201) {
-        flaq.redirect_flaq = !flaq.redirect_flaq;
-        redirect.value = [response.data];
-
-        let destination = response.data.destination_url;
-        if (!destination.includes("http") || !destination.includes("http")) {
-          destination = "https://" + destination;
+        if (result.error.value) {
+          //console.log("Error no result", result.error);
         }
-
-        window.location.assign(destination);
-      }
-    } catch (error) {
-      AWN.alert(error);
-    }
+      })
+      .catch((error) => {
+        console.log("Error useFetch: ", error);
+      });
   } else {
     try {
       const body = {
