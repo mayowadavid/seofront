@@ -37,7 +37,7 @@ const config = useRuntimeConfig();
 
 const params = route.params;
 const query = route.query;
-let redirect = reactive([]);
+let redirect = ref([]);
 const screenWidth = window?.screen?.width;
 const screenHeight = window?.screen?.height;
 const operating_system = navigator.userAgent;
@@ -77,17 +77,16 @@ if (params.id && params.id.length === 7) {
       .then((result) => {
         if (result.data.value) {
           redirect.value = result.data.value;
-          destination.value = result.data.value[0].destination_url;
+          let destination = result.data.value.destination_url;
           if (
-            !destination.value.includes("http") ||
-            !destination.value.includes("https")
+            !destination.includes("http") ||
+            !destination.includes("https")
           ) {
-            destination.value = "https://" + destination.value;
+            destination = "https://" + destination;
           }
           window.location.assign(destination);
         }
         if (result.error.value) {
-          //console.log("Error no result", result.error);
         }
       })
       .catch((error) => {
