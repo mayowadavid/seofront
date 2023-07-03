@@ -218,10 +218,7 @@ const setClickDatas = async () => {
   const res = await fetchClickList();
   console.log(res);
   if(res){
-      const data = res?.map((d)=>{
-        const {createdAt} = d;
-        return {...d, createdAt: new Date(createdAt)}
-      })?.sort((a, b)=> b.createdAt?.getTime() - a.createdAt?.getTime())
+      const data = res?.sort((a, b)=> new Date(b.createdAt) - new Date(a.createdAt))
       clickdatas.value = [...data];
       searchdatas.value = [...data];
   }
