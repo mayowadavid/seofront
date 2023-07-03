@@ -38,6 +38,7 @@ const config = useRuntimeConfig();
 const params = route.params;
 const query = route.query;
 let redirect = ref([]);
+onMounted(async () => {
 const screenWidth = window?.screen?.width;
 const screenHeight = window?.screen?.height;
 const operating_system = navigator.userAgent;
@@ -124,6 +125,6 @@ if (params.id && params.id.length === 7) {
         console.log("Error useFetch: ", error);
       });
   }
- 
-}
+  }
+})
 </script>
