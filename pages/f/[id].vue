@@ -22,6 +22,9 @@
 
 <script setup>
 import { useRouter } from "vue-router";
+import utils from '~~/utils/helper';
+
+const { Axios, AwnNotify } = utils;
 // import { useScreen } from "vue-screen";
 
 definePageMeta({
@@ -35,7 +38,6 @@ const config = useRuntimeConfig();
 const params = route.params;
 const query = route.query;
 const redirect = ref([]);
-const destination = ref("");
 const screenWidth = window?.screen?.width;
 const screenHeight = window?.screen?.height;
 const operating_system = navigator.userAgent;
@@ -54,85 +56,67 @@ if (navigator.connection) {
 
 const flaq = reactive({ redirect_flaq: false });
 
-const path = config.BASE_URL + route.fullPath;
+const path = window.location.href;
 const fullpath = path.split("?")[0];
 
 if (params.id && params.id.length === 7) {
+  flaq.redirect_flaq = !flaq.redirect_flaq;
   if (query.fbclid) {
-    await useFetch(`${config.API_BASE_URL}tracking-url/getclicks`, {
-      method: "POST",
-      body: {
-        tracking_url: fullpath,
-        referrer_url: document.referrer,
-        screen_resolution: screenWidth + "x" + screenHeight,
-        operating_system,
-        device,
-        browser_language,
-        network_speed
-      },
-    })
-      .then((result) => {
-        if (result.data.value) {
-          console.log('redirect', result.data.value);
-          redirect.value = [result.data.value];
-          destination.value = result.data.value.destination_url;
-          if (
-            !destination.value.includes("http") ||
-            !destination.value.includes("https")
-          ) {
-            destination.value = "https://" + destination.value;
-          }
+        try {
+      const body = {
+          tracking_url: path,
+          screen_resolution: `${screenWidth}x${screenHeight}`,
+          operating_system,
+          device,
+          browser_language,
+          network_speed,
+          referrer_url: document.referrer,
+        }
+      const response = await Axios('post',`tracking-url/getclicks`, 
+        body
+      );
+      if (response.data && response.status == 201) {
+        flaq.redirect_flaq = !flaq.redirect_flaq;
+        redirect.value = [response.data];
 
-          // router.push({
-          //   path: "/_r",
-          //   query: {
-          //     title: result.data.value[0].seo_title,
-          //     description: result.data.value[0].seo_description,
-          //     image: result.data.value[0].seo_image_url,
-          //   },
-          // });
-        }
-        if (result.error.value) {
-          console.log("Error no result", result.error);
-        }
-      })
-      .catch((error) => {
-        console.log("Error useFetch: ", error);
-      });
-  } else {
-    console.log("Redirect it or show preview or do nothing.");
-    await useFetch(`${config.API_BASE_URL}tracking-url/getclicks`, {
-      method: "POST",
-      body: {
-        tracking_url: path,
-        referrer_url: document.referrer,
-        screen_resolution: screenWidth + "x" + screenHeight,
-        operating_system,
-        device,
-        browser_language,
-        network_speed,
-      },
-    }).then((result) => {
-      if (result.data.value) {
-        redirect.value = [result.data.value];
-        // flaq.redirect_flaq = !flaq.redirect_flaq;
-        let destination = result.data.value.destination_url;
+        let destination = response.data.destination_url;
         if (!destination.includes("http") || !destination.includes("http")) {
           destination = "https://" + destination;
         }
+
         window.location.assign(destination);
       }
-      if (result.error.value) {
-        console.log("error value1", result.error.value.data);
-        AWN.alert(error);
-      }
-    })
-    .catch((error) => {
+    } catch (error) {
       AWN.alert(error);
-    });
-      
+    }
+  } else {
+    try {
+      const body = {
+          tracking_url: path,
+          screen_resolution: `${screenWidth}x${screenHeight}`,
+          operating_system,
+          device,
+          browser_language,
+          network_speed,
+          referrer_url: `${config.BASE_URL}`,
+        }
+      const response = await Axios('post',`tracking-url/getclicks`, 
+        body
+      );
+      if (response.data && response.status == 201) {
+        flaq.redirect_flaq = !flaq.redirect_flaq;
+        redirect.value = [response.data];
 
-    
+        let destination = response.data.destination_url;
+        if (!destination.includes("http") || !destination.includes("http")) {
+          destination = "https://" + destination;
+        }
+
+        window.location.assign(destination);
+      }
+    } catch (error) {
+      AWN.alert(error);
+    }
   }
  
 }

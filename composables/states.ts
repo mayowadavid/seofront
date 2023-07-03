@@ -242,8 +242,9 @@ export const actions  = {
     async fetchSinglePlan(id: string){
         try{
             const res = await Axios('get', `plan/${id}`);
-            console.log(res?.data)
+            console.log('single', res?.data)
             SET_Singleplan(res?.data);
+            return res?.data;
         }catch(e){
 
         }

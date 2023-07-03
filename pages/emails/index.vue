@@ -395,10 +395,12 @@ const sendTestMail = async () => {
         method: 'POST',
         body: mail_data
     });
+    console.log('sent', data.value);
     if (data.value) {
         await AWN.success('Your testing mail successfully send!');
         flaq.mail_send_flaq = !flaq.mail_send_flaq;
     }
+    console.log('error', error.value)
     if (error.value) {
         // alert('Error: '+error.value.statusMessage);
         await AWN.alert(error.value.statusMessage);

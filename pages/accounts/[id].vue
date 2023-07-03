@@ -195,7 +195,7 @@ form.value = {...form.value, ...newData};
 const setLoading = () => {
   isLoading.value = true
 }
-
+console.log('hey');
 const copy = async (id) => {
   // Get the text field
   var copyText = document.getElementById(id)
@@ -210,7 +210,12 @@ const copy = async (id) => {
   // Alert the copied text
   //alert("Copied the text: " + copyText.value);
 }
-onBeforeMount(()=> fetchSinglePlan(id));
+onMounted(async()=>{ 
+  const res = await fetchSinglePlan(id);
+  if(res){
+    console.log('plan', res);
+  }
+  });
 </script>
 
 <script>

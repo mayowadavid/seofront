@@ -944,6 +944,42 @@ const createCategoryItem = async () => {
    res && (form = {...initialValue});
 };
 
+// const defUser = JSON.parse(localStorage.getItem("user"));
+let defaultCategory = localStorage.getItem("sometraffic_default_category");
+let defaultGroup = parseInt(localStorage.getItem("sometraffic_default_group"));
+let defaultProject = parseInt(localStorage.getItem("activeProject"));
+if(defaultProject){
+  form.projectId = defaultProject;
+}
+
+if(defaultGroup){
+  form.groupsId = defaultGroup;
+}
+
+if(defaultProject){
+  form.category = category;
+}
+
+let defaultPriority = localStorage.getItem("sometraffic_default_priority");
+
+
+const saveDefault = async (id) => {
+  localStorage.setItem("sometraffic_default_category", id);
+  await AWN.success(`Standard category set to ${id}.`);
+};
+const saveDefaultGroup = async (id) => {
+  localStorage.setItem("sometraffic_default_group", id);
+  await AWN.success(`Standard group set to ${groups.value.find(group => group.id === id).name}.`);
+};
+const saveDefaultPriority = async (id) => {
+  localStorage.setItem("sometraffic_default_priority", id);
+  await AWN.success(
+    `Standard priority set to ${
+      id === "1" ? "high" : id === "2" ? "medium" : id === "3" ? "low" : ""
+    }.`
+  );
+};
+
 const handleSave = async () => {
   let a_data = {
     item_title: form.item_title,
@@ -1006,22 +1042,7 @@ const copy = async (id) => {
   //alert("Copied the text: " + copyText.value);
 };
 
-const saveDefault = async (id) => {
-  localStorage.setItem("sometraffic_default_category", id);
-  await AWN.success(`Standard category set to ${id}.`);
-};
-const saveDefaultGroup = async (id) => {
-  localStorage.setItem("sometraffic_default_group", id);
-  await AWN.success(`Standard group set to ${groups.value.find(group => group.id === id).name}.`);
-};
-const saveDefaultPriority = async (id) => {
-  localStorage.setItem("sometraffic_default_priority", id);
-  await AWN.success(
-    `Standard priority set to ${
-      id === "1" ? "high" : id === "2" ? "medium" : id === "3" ? "low" : ""
-    }.`
-  );
-};
+
 
 const handleGroup = (id) => {
  showGroupsList.value = false;
