@@ -322,9 +322,12 @@ const nicePriority = (n) => {
   }
 };
 
-  if(task?.length > 0){
-    clickdatas.value = [...task];
-    searchdatas.value = [...task];
+
+clickdatasTotal.value = task?.length;
+  if(props.task?.length > 0){
+    clickdatas.value = [...props.task];
+    searchdatas.value = [...props.task];
+    clickdatasTotal.value = props.task?.length;
   }
 
 

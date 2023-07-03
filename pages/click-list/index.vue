@@ -216,7 +216,6 @@ const {fetchClickList} = actions;
 
 const setClickDatas = async () => {
   const res = await fetchClickList();
-  console.log(res);
   if(res){
       const data = res?.sort((a, b)=> new Date(b.createdAt) - new Date(a.createdAt))
       clickdatas.value = [...data];

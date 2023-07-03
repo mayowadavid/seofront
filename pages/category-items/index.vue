@@ -432,14 +432,16 @@ const handleDelete = async () => {
 };
 const store = useStore();
 const checkCategory = computed(()=> store.value.categories);
-console.log(checkCategory.value);
+//console.log(checkCategory.value);
 if(checkCategory.value.length > 0){
   clickdatas.value = [...checkCategory.value];
   searchdatas.value = [...checkCategory.value];
+  clickdatasTotal.value = checkCategory.value.length;
 }
 watch(()=> store?.value?.categories, (newData)=>{
   clickdatas.value = [...newData];
   searchdatas.value = [...newData];
+  clickdatasTotal.value = newData.length;
 })
 
 onMounted(() => {

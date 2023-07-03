@@ -484,6 +484,16 @@ export const actions  = {
             AwnNotify('failed', 'alert');
         }
     },
+    async deleteGroup(id: string){
+        try{
+            const res = await Axios('delete', `groups/${id}`);
+            AwnNotify('Group deleted', 'success')
+            navigateTo("/user-groups");
+            return res?.data;
+        }catch(e){
+            AwnNotify('failed', 'alert');
+        }
+    },
      async createTrackUrl(form: {}){
         try{
             const res = await Axios('post', `tracking-url/create`, form);
@@ -549,6 +559,15 @@ export const actions  = {
         try{
             const res = await Axios('delete', `tracking-url/${id}`);
             AwnNotify('Track url deleted', 'success')
+            return res?.data;
+        }catch(e){
+            AwnNotify('failed', 'alert');
+        }
+    },
+    async deleteClick(id: string){
+        try{
+            const res = await Axios('delete', `click-data/${id}`);
+            AwnNotify('Clicks deleted', 'success')
             return res?.data;
         }catch(e){
             AwnNotify('failed', 'alert');

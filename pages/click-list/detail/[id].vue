@@ -552,11 +552,10 @@ const formatDate = (dateString, formatString) => {
   return moment(date).format(formatString);
 };
 
-const {fetchClicklistByTrackUrl, deleteTrackUrClick} = actions;
+const {fetchClicklistByTrackUrl, deleteClick} = actions;
 // fetch the click
 const setClickDatas = async () => {
  const res = await fetchClicklistByTrackUrl(id);
- console.log('res', res);
   click_datas.value = [...res];
 };
 
@@ -571,8 +570,11 @@ const prev = async () => {
   }
 };
 
-const destroyClickData = (id) => {
-    deleteTrackUrClick(id);
+const destroyClickData = async(id) => {
+   const res = await deleteClick(id);
+   if(res){
+    click_datas.value = click_datas.value.filter(d=> d.id !== id);
+   }
 };
 onBeforeMount(setClickDatas);
 </script>

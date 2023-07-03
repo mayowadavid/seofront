@@ -196,15 +196,21 @@ const clickdatasTotal = ref(0);
 const search = reactive({
   vaClDa: id !== "" ? id : "",
 });
-const {fetchInformationByProject} = actions;
 const store = useStore();
+const checkInfo = computed(()=> store.value.information);
+const {fetchInformationByProject} = actions;
 const projectId = store.value.projectId;
-clickdatas.value = [...store.value.information];
-searchdatas.value = [...store.value.information];
+
+if(checkInfo.value.length > 0){
+  clickdatas.value = [...checkInfo.value];
+  searchdatas.value = [...checkInfo.value];
+  clickdatasTotal.value = checkInfo.value.length;
+}
+
 watch(()=> store?.value?.information, (newData)=>{
-  console.log('new', newData);
   clickdatas.value = [...newData];
   searchdatas.value = [...newData];
+  clickdatasTotal.value = newData.length;
 })
 
 //console.log('info', clickdatas);

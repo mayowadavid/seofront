@@ -299,35 +299,42 @@ const form = reactive({
 
 const store = useStore();
 
+const checkgroup = computed(()=> store.value.groups);
 
+const {deleteGroup} = actions;
 
- searchdatas.value = [...store.value.groups];
- groups.value = [...store.value.groups];
+if(checkgroup.value.length > 0){
+    searchdatas.value = [...checkgroup.value];
+    groups.value = [...checkgroup.value];
+    groupsTotal.value = checkgroup.value.length;
+}
 
 
 watch(()=> store?.value?.groups, (newData)=>{
   searchdatas.value = [...newData];
   groups.value = [...newData];
+  groupsTotal.value = newData.length;
 })
 
 const setGroupsData = () => {
 
 }
 
-const update = async (id) => {
-  
-};
 
 const destroy = async (id, deletingName) => {
-  shouldShowDialog.value = true;
- 
+  shouldShowDialog.value = !shouldShowDialog.value;
+  localStorage.setItem("sometraffic_delete_group", id);
 };
 
 const handleDelete = async () => {
   const id = localStorage.getItem("sometraffic_delete_group");
-  
-
-  localStorage.removeItem("sometraffic_delete_group");
+   const res = await deleteGroup(id);
+  if(res){
+    shouldShowDialog.value = !shouldShowDialog.value;
+    groups.value = groups.value.filter(d=> d.id !== id);
+    searchdatas.value = searchdatas.value.filter(d=> d.id !== id);
+    localStorage.removeItem("sometraffic_delete_group");
+  }
 };
 
 

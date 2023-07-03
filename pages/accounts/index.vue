@@ -297,6 +297,7 @@ const setAccounts = () => {
   
   searchdatas.value = [...store.value.plan];
   accounts.value = [...store.value.plan];
+  accountsTotal.value = store.value.plan.length;
 }
 
 
@@ -305,10 +306,15 @@ const destroy = async (id) => {
   localStorage.setItem("sometraffic_delete_account", id)
 }
 const { deletePlan } = actions;
-const handleDelete = () => {
+const handleDelete = async () => {
   const id = localStorage.getItem("sometraffic_delete_account")
-  deletePlan(id);
-  localStorage.removeItem("sometraffic_delete_account")
+  const res = await deletePlan(id);
+  if(res){
+    shouldShowDialog.value = !shouldShowDialog.value;
+    accounts.value = accounts.value.filter(d=> d.id !== id);
+    searchdatas.value = searchdatas.value.filter(d=> d.id !== id);
+    localStorage.removeItem("sometraffic_delete_account")
+  }
 }
 
 onBeforeMount(setAccounts)
