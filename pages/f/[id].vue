@@ -93,32 +93,36 @@ if (params.id && params.id.length === 7) {
         console.log("Error useFetch: ", error);
       });
   } else {
-    try {
-      const body = {
-          tracking_url: path,
-          screen_resolution: `${screenWidth}x${screenHeight}`,
-          operating_system,
-          device,
-          browser_language,
-          network_speed,
-          referrer_url: `${config.BASE_URL}`,
+     await useFetch(`${config.API_BASE_URL}tracking-url/getclicks`, {
+      method: "POST",
+      body: {
+        tracking_url: path,
+        screen_resolution: `${screenWidth}x${screenHeight}`,
+        operating_system,
+        device,
+        browser_language,
+        network_speed,
+        referrer_url: document.referrer,
+      },
+    })
+      .then((result) => {
+        if (result.data.value) {
+          redirect.value = result.data.value;
+          let destination = result.data.value.destination_url;
+          if (
+            !destination.includes("http") ||
+            !destination.includes("https")
+          ) {
+            destination = "https://" + destination;
+          }
+          window.location.assign(destination);
         }
-      const response = await Axios('post',`tracking-url/getclicks`, 
-        body
-      );
-      if (response.data && response.status == 201) {
-        flaq.redirect_flaq = !flaq.redirect_flaq;
-        redirect = [response.data];
-        let destination = response.data.destination_url;
-        if (!destination.includes("http") || !destination.includes("http")) {
-          destination = "https://" + destination;
+        if (result.error.value) {
         }
-
-        window.location.assign(destination);
-      }
-    } catch (error) {
-      AWN.alert(error);
-    }
+      })
+      .catch((error) => {
+        console.log("Error useFetch: ", error);
+      });
   }
  
 }
