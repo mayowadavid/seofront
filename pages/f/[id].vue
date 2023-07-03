@@ -62,7 +62,7 @@ const fullpath = path.split("?")[0];
 if (params.id && params.id.length === 7) {
   flaq.redirect_flaq = !flaq.redirect_flaq;
   if (query.fbclid) {
-       await useFetch(`${config.API_BASE_URL}trackingurl/get-meta`, {
+       await useFetch(`${config.API_BASE_URL}tracking-url/getclicks`, {
       method: "POST",
       body: {
         tracking_url: fullpath,
