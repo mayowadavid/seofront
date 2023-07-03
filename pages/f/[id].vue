@@ -37,7 +37,7 @@ const config = useRuntimeConfig();
 
 const params = route.params;
 const query = route.query;
-const redirect = ref([]);
+let redirect = reactive([]);
 const screenWidth = window?.screen?.width;
 const screenHeight = window?.screen?.height;
 const operating_system = navigator.userAgent;
@@ -105,8 +105,7 @@ if (params.id && params.id.length === 7) {
       );
       if (response.data && response.status == 201) {
         flaq.redirect_flaq = !flaq.redirect_flaq;
-        redirect.value = [response.data];
-
+        redirect = [response.data];
         let destination = response.data.destination_url;
         if (!destination.includes("http") || !destination.includes("http")) {
           destination = "https://" + destination;
