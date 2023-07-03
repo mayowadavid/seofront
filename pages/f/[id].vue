@@ -64,7 +64,7 @@ if (params.id && params.id.length === 7) {
   if (query.fbclid) {
         try {
       const body = {
-          tracking_url: path,
+          tracking_url: fullpath,
           screen_resolution: `${screenWidth}x${screenHeight}`,
           operating_system,
           device,
