@@ -21,10 +21,6 @@
 </template>
 
 <script setup>
-import { useRouter } from "vue-router";
-import utils from '~~/utils/helper';
-
-const { Axios, AwnNotify } = utils;
 // import { useScreen } from "vue-screen";
 
 definePageMeta({
@@ -38,7 +34,8 @@ const config = useRuntimeConfig();
 const params = route.params;
 const query = route.query;
 let redirect = ref([]);
-onMounted(async () => {
+
+onBeforeMount(async () => {
 const screenWidth = window?.screen?.width;
 const screenHeight = window?.screen?.height;
 const operating_system = navigator.userAgent;
